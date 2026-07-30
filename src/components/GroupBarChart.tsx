@@ -2,6 +2,7 @@
 
 import { GROUP_COLOR } from "@/lib/emotions";
 import type { EmotionCount } from "@/lib/journal";
+import type { Valence } from "@/lib/types";
 
 const CHART_HEIGHT = 132;
 const BAR_WIDTH = 56;
@@ -18,7 +19,7 @@ export function GroupBarChart({
 }: {
   counts: EmotionCount[];
   activeKeys: string[];
-  onToggle: (key: string) => void;
+  onToggle: (key: string, valence: Valence) => void;
 }) {
   if (counts.length === 0) return null;
 
@@ -38,7 +39,7 @@ export function GroupBarChart({
             <button
               key={entry.key}
               type="button"
-              onClick={() => onToggle(entry.key)}
+              onClick={() => onToggle(entry.key, entry.valence)}
               aria-pressed={active}
               title={`${entry.label}: ${entry.count}`}
               className="flex shrink-0 flex-col items-center gap-1.5 rounded-lg px-1 pt-1 transition"

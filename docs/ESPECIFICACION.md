@@ -42,6 +42,24 @@ tiempo y a las páginas de grupo.
 - Volver a un preset (Hoy / 7 días / 30 días) **borra la fecha personalizada**: al reabrir el
   calendario se vuelve a ver el mes actual con hoy marcado y sin selección.
 
+## Filtro de emociones (listado, línea de tiempo y páginas de grupo)
+
+El bloque se titula **«Filtra por emociones»** y lleva a su derecha, encima de los controles, un
+botón de **papelera** para limpiar. Está siempre visible —para que se sepa que se puede
+limpiar— y apagado mientras no haya ningún filtro puesto.
+
+- **Signo**: «Positivas» y «Negativas» son de **selección única**. Marcar uno desmarca el otro, y
+  volver a pulsar el que está activo lo quita. Solo aparecen si en pantalla hay emociones de los
+  dos signos: en un grupo de un solo signo no habría nada que elegir.
+- **Emociones concretas**: fila desplazable, ordenada por frecuencia, con el recuento al lado.
+  **Con un signo activo solo se ofrecen las emociones de ese signo**, tanto en esta fila como en
+  el diagrama de barras de la página de grupo.
+- Al **cambiar de signo se desmarcan las emociones concretas del signo contrario**, porque dejan
+  de estar a la vista y un filtro activo que no se ve es un filtro que nadie entiende.
+- **Orden**: con alguna emoción concreta marcada pasa automáticamente a intensidad; al
+  desmarcarlas todas vuelve a «más recientes». Elegir un orden a mano manda hasta volver a tocar
+  los filtros.
+
 ## Pantalla principal `/`
 
 Sin scroll: ocupa exactamente el alto de la pantalla.
@@ -82,8 +100,7 @@ Situación y al menos una emoción son obligatorias. El servidor revalida todo l
 
 - Entra **sin filtros de emoción** y ordenada **de más reciente a menos**.
 - Se puede ordenar además por **mayor intensidad**.
-- Se puede filtrar por **signo** (positivas/negativas) y por **emociones concretas**. Las
-  emociones que se ofrecen son las presentes en lo que hay en pantalla, ordenadas por frecuencia.
+- Lleva el bloque «Filtra por emociones» descrito más arriba.
 - Hereda el filtro de fechas de la cabecera.
 - Cada situación es una tarjeta resumen; al pulsarla se abre el **detalle completo** en un popup
   con **flechas laterales** para ir a la anterior y a la siguiente **según el orden en que se
@@ -103,7 +120,7 @@ Situación y al menos una emoción son obligatorias. El servidor revalida todo l
     ancho supere el máximo anterior. Cuando eso pasa, mínimo y máximo coinciden y la línea se
     queda corta a propósito, para no rebasar nunca la altura.
   - Con muchos días, los días quedan muy estrechos y la línea se desplaza lateralmente.
-- Filtros por signo y por emoción concreta, que afectan **al diagrama y al listado a la vez**.
+- El bloque «Filtra por emociones» afecta **al diagrama y al listado a la vez**.
 - Debajo del diagrama va el listado de experiencias con esos mismos filtros.
 
 ## Página de grupo `/grupo/{positivas|negativas|ambiguas}`
@@ -112,10 +129,10 @@ Situación y al menos una emoción son obligatorias. El servidor revalida todo l
   no caben. En el grupo ambiguo se cuentan las emociones sueltas de los dos signos, no las
   combinaciones: es lo que hace útil el diagrama.
 - Pulsar una barra **marca o desmarca** esa emoción en el filtro, y queda sincronizado con el
-  selector de abajo: da igual por dónde se toque.
-- **Con alguna emoción marcada, el orden pasa automáticamente a intensidad.** Al desmarcarlas
-  todas vuelve al orden por defecto (más recientes primero). Si se elige un orden a mano, esa
-  elección manda hasta volver a tocar los filtros.
+  selector de abajo: da igual por dónde se toque. Con un signo activo, el diagrama solo muestra
+  las emociones de ese signo, para que no haya barras que al pulsarlas contradigan el filtro.
+- El signo solo se puede elegir en el grupo **ambiguo**, que es el único con emociones de los dos
+  tipos.
 - Debajo, el listado de experiencias del grupo, con el mismo detalle en popup y las mismas
   flechas de navegación.
 

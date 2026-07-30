@@ -12,8 +12,10 @@ const VALENCE_COLOR: Record<Valence, string> = {
 };
 
 /**
- * Filtros por signo y por emoción concreta. Las emociones que se ofrecen salen
- * de las experiencias que hay en pantalla, ordenadas por frecuencia.
+ * Filtros por signo y por emoción concreta.
+ *
+ * El signo es de selección única y, cuando hay uno activo, la lista de
+ * emociones concretas solo ofrece las de ese signo.
  */
 export function EmotionFilterControls({
   source,
@@ -28,69 +30,88 @@ export function EmotionFilterControls({
 }) {
   const counts = useMemo(() => emotionCounts(source), [source]);
   const valencesPresent = useMemo(() => new Set(counts.map((c) => c.valence)), [counts]);
+  const canPickValence = showValences && valencesPresent.size > 1;
+
+  const visibleCounts = useMemo(
+    () => (state.filter.valence ? counts.filter((c) => c.valence === state.filter.valence) : counts),
+    [counts, state.filter.valence],
+  );
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        {showValences && valencesPresent.size > 1 ? (
-          <div className="flex gap-1.5">
-            {(["POSITIVA", "NEGATIVA"] as Valence[]).map((valence) => {
-              const active = state.filter.valences.includes(valence);
-              const color = VALENCE_COLOR[valence];
-              return (
-                <button
-                  key={valence}
-                  type="button"
-                  onClick={() => state.toggleValence(valence)}
-                  aria-pressed={active}
-                  className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                  style={
-                    active
-                      ? { backgroundColor: color, borderColor: color, color: "#08090c" }
-                      : { borderColor: `${color}66`, color }
-                  }
-                >
-                  {valence === "POSITIVA" ? "Positivas" : "Negativas"}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {showSort ? (
-          <label className="ml-auto flex items-center gap-1.5 text-xs text-ink-400">
-            <span className="sr-only sm:not-sr-only">Orden</span>
-            <select
-              value={state.sort}
-              onChange={(event) => state.setSort(event.target.value as "recientes" | "intensidad")}
-              className="rounded-full border border-ink-700 bg-ink-850 px-3 py-1.5 text-xs text-ink-100 outline-none focus:border-ink-400"
-            >
-              <option value="recientes">Más recientes</option>
-              <option value="intensidad">Mayor intensidad</option>
-            </select>
-          </label>
-        ) : null}
+    <section className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-xs font-medium tracking-wide text-ink-400 uppercase">Filtra por emociones</h2>
+        <button
+          type="button"
+          onClick={state.clear}
+          disabled={!state.active}
+          aria-label="Limpiar filtros"
+          title="Limpiar filtros"
+          className="-mr-1 flex h-8 w-8 items-center justify-center rounded-full text-ink-400 transition enabled:hover:bg-ink-800 enabled:hover:text-ink-100 disabled:opacity-30"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path
+              d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
 
-      {counts.length > 0 ? (
-        <div className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
-          {state.active ? (
-            <button
-              type="button"
-              onClick={state.clear}
-              className="shrink-0 rounded-full border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs font-medium text-ink-100"
-            >
-              Limpiar
-            </button>
+      {canPickValence || showSort ? (
+        <div className="flex items-center gap-2">
+          {canPickValence ? (
+            <div className="flex gap-1.5">
+              {(["POSITIVA", "NEGATIVA"] as Valence[]).map((valence) => {
+                const active = state.filter.valence === valence;
+                const color = VALENCE_COLOR[valence];
+                return (
+                  <button
+                    key={valence}
+                    type="button"
+                    onClick={() => state.toggleValence(valence)}
+                    aria-pressed={active}
+                    className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                    style={
+                      active
+                        ? { backgroundColor: color, borderColor: color, color: "#08090c" }
+                        : { borderColor: `${color}66`, color }
+                    }
+                  >
+                    {valence === "POSITIVA" ? "Positivas" : "Negativas"}
+                  </button>
+                );
+              })}
+            </div>
           ) : null}
-          {counts.map((entry) => {
-            const active = state.filter.emotions.includes(entry.key);
+
+          {showSort ? (
+            <label className="ml-auto flex items-center gap-1.5 text-xs text-ink-400">
+              <span className="sr-only sm:not-sr-only">Orden</span>
+              <select
+                value={state.sort}
+                onChange={(event) => state.setSort(event.target.value as "recientes" | "intensidad")}
+                className="rounded-full border border-ink-700 bg-ink-850 px-3 py-1.5 text-xs text-ink-100 outline-none focus:border-ink-400"
+              >
+                <option value="recientes">Más recientes</option>
+                <option value="intensidad">Mayor intensidad</option>
+              </select>
+            </label>
+          ) : null}
+        </div>
+      ) : null}
+
+      {visibleCounts.length > 0 ? (
+        <div className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
+          {visibleCounts.map((entry) => {
+            const active = state.activeKeys.includes(entry.key);
             const color = VALENCE_COLOR[entry.valence];
             return (
               <button
                 key={entry.key}
                 type="button"
-                onClick={() => state.toggleEmotion(entry.key)}
+                onClick={() => state.toggleEmotion(entry.key, entry.valence)}
                 aria-pressed={active}
                 className="shrink-0 rounded-full border px-3 py-1.5 text-xs whitespace-nowrap transition"
                 style={
@@ -106,6 +127,6 @@ export function EmotionFilterControls({
           })}
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

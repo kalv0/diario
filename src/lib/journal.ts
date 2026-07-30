@@ -132,26 +132,33 @@ export function filterByRange(experiences: Experience[], range: DateRange): Expe
   return experiences.filter((exp) => withinRange(exp, range));
 }
 
-export interface EmotionFilter {
-  /** Signos activos. Vacío = todos. */
-  valences: Valence[];
-  /** Emociones concretas activas (claves normalizadas). Vacío = todas. */
-  emotions: string[];
+/** Emoción concreta marcada en el filtro. La valencia viaja con ella para poder
+ *  descartarla cuando se cambia de signo. */
+export interface SelectedEmotion {
+  /** Clave normalizada (sin acentos ni mayúsculas). */
+  key: string;
+  valence: Valence;
 }
 
-export const EMPTY_EMOTION_FILTER: EmotionFilter = { valences: [], emotions: [] };
+export interface EmotionFilter {
+  /** Signo activo. Solo puede haber uno; `null` = los dos. */
+  valence: Valence | null;
+  /** Emociones concretas activas. Vacío = todas. */
+  emotions: SelectedEmotion[];
+}
+
+export const EMPTY_EMOTION_FILTER: EmotionFilter = { valence: null, emotions: [] };
 
 export function isEmotionFilterActive(filter: EmotionFilter): boolean {
-  return filter.valences.length > 0 || filter.emotions.length > 0;
+  return filter.valence !== null || filter.emotions.length > 0;
 }
 
 export function filterByEmotions(experiences: Experience[], filter: EmotionFilter): Experience[] {
   if (!isEmotionFilterActive(filter)) return experiences;
-  const wantedEmotions = new Set(filter.emotions);
-  const wantedValences = new Set(filter.valences);
+  const wantedEmotions = new Set(filter.emotions.map((e) => e.key));
 
   return experiences.filter((exp) => {
-    const valenceOk = wantedValences.size === 0 || exp.emotions.some((e) => wantedValences.has(e.valence));
+    const valenceOk = filter.valence === null || exp.emotions.some((e) => e.valence === filter.valence);
     const emotionOk = wantedEmotions.size === 0 || exp.emotions.some((e) => wantedEmotions.has(normalize(e.name)));
     return valenceOk && emotionOk;
   });

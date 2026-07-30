@@ -26,7 +26,12 @@ export function GroupView({ group }: { group: GroupType }) {
     [experiences, group],
   );
 
-  const counts = useMemo(() => emotionCounts(groupExperiences), [groupExperiences]);
+  // El diagrama respeta el signo activo, igual que el selector: así nunca hay
+  // una barra que al pulsarla contradiga el filtro que ya está puesto.
+  const counts = useMemo(() => {
+    const all = emotionCounts(groupExperiences);
+    return state.filter.valence ? all.filter((c) => c.valence === state.filter.valence) : all;
+  }, [groupExperiences, state.filter.valence]);
 
   const list = useMemo(
     () => sortExperiences(filterByEmotions(groupExperiences, state.filter), state.sort),
@@ -49,7 +54,7 @@ export function GroupView({ group }: { group: GroupType }) {
         </p>
 
         <div className="mb-3">
-          <GroupBarChart counts={counts} activeKeys={state.filter.emotions} onToggle={state.toggleEmotion} />
+          <GroupBarChart counts={counts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
         </div>
 
         <div className="mb-4">
