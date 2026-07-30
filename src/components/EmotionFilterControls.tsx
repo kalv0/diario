@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { EmotionChipGrid } from "./EmotionChipGrid";
+import { Modal, ModalHeader } from "./Modal";
 import type { EmotionFilterState } from "./useEmotionFilter";
 import { GROUP_COLOR } from "@/lib/emotions";
-import { emotionCounts } from "@/lib/journal";
+import { emotionCounts, type SortMode } from "@/lib/journal";
 import type { Experience, Valence } from "@/lib/types";
 
 const VALENCE_COLOR: Record<Valence, string> = {
@@ -12,11 +13,49 @@ const VALENCE_COLOR: Record<Valence, string> = {
   NEGATIVA: GROUP_COLOR.negativas,
 };
 
+const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+  { value: "recientes", label: "Más recientes" },
+  { value: "intensidad", label: "Mayor intensidad" },
+];
+
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-ink-400" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TriggerPill({
+  onClick,
+  active,
+  children,
+}: {
+  onClick: () => void;
+  active?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition active:scale-[0.97]",
+        active ? "border-ink-500 bg-ink-800 text-ink-100" : "border-ink-700 bg-ink-850 text-ink-300",
+      ].join(" ")}
+    >
+      {children}
+      <ChevronIcon />
+    </button>
+  );
+}
+
 /**
- * Filtros por signo y por emoción concreta.
+ * Filtros por signo y por emoción concreta, más el orden del listado.
  *
- * El signo es de selección única y, cuando hay uno activo, la lista de
- * emociones concretas solo ofrece las de ese signo.
+ * Los dos son desplegables: «Filtra por emociones» a la izquierda (con el
+ * signo, las emociones concretas y limpiar) y «Ordena» a la derecha, que
+ * muestra el criterio activo y deja elegir el otro con un toque.
  */
 export function EmotionFilterControls({
   source,
@@ -29,6 +68,9 @@ export function EmotionFilterControls({
   showValences?: boolean;
   showSort?: boolean;
 }) {
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+
   const counts = useMemo(() => emotionCounts(source), [source]);
   const valencesPresent = useMemo(() => new Set(counts.map((c) => c.valence)), [counts]);
   const canPickValence = showValences && valencesPresent.size > 1;
@@ -38,75 +80,137 @@ export function EmotionFilterControls({
     [counts, state.filter.valence],
   );
 
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-ink-300">Filtra por emociones</h2>
+  const currentSortLabel = SORT_OPTIONS.find((o) => o.value === state.sort)?.label ?? "";
+  const showFilterTrigger = counts.length > 0;
 
-      {state.active ? (
-        <div>
-          <button
-            type="button"
-            onClick={state.clear}
-            className="flex items-center gap-1.5 rounded-full border border-ink-700 px-3 py-1.5 text-xs text-ink-300 transition hover:border-ink-500 hover:text-ink-100"
-          >
-            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path
-                d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+  if (!showFilterTrigger && !showSort) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      {showFilterTrigger ? (
+        <>
+          <TriggerPill onClick={() => setFilterOpen(true)} active={state.active}>
+            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 5h16l-6 7.5V18l-4 2v-7.5L4 5z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Limpiar filtro
-          </button>
-        </div>
+            Filtra por emociones
+          </TriggerPill>
+
+          <Modal
+            open={filterOpen}
+            onClose={() => setFilterOpen(false)}
+            labelledBy="filtro-emociones"
+            panelClassName="max-w-sm"
+          >
+            <ModalHeader
+              id="filtro-emociones"
+              title="Filtra por emociones"
+              onClose={() => setFilterOpen(false)}
+              right={
+                state.active ? (
+                  <button
+                    type="button"
+                    onClick={state.clear}
+                    aria-label="Limpiar filtro"
+                    title="Limpiar filtro"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-ink-400 transition hover:bg-ink-800 hover:text-ink-100"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path
+                        d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                ) : null
+              }
+            />
+
+            <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
+              {canPickValence ? (
+                <div className="mb-3 flex gap-1.5">
+                  {(["POSITIVA", "NEGATIVA"] as Valence[]).map((valence) => {
+                    const active = state.filter.valence === valence;
+                    const color = VALENCE_COLOR[valence];
+                    return (
+                      <button
+                        key={valence}
+                        type="button"
+                        onClick={() => state.toggleValence(valence)}
+                        aria-pressed={active}
+                        className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                        style={
+                          active
+                            ? { backgroundColor: color, borderColor: color, color: "#08090c" }
+                            : { borderColor: `${color}66`, color }
+                        }
+                      >
+                        {valence === "POSITIVA" ? "Positivas" : "Negativas"}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+
+              {visibleCounts.length > 0 ? (
+                <EmotionChipGrid entries={visibleCounts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
+              ) : null}
+            </div>
+          </Modal>
+        </>
       ) : null}
 
-      {canPickValence || showSort ? (
-        <div className="flex items-center gap-2">
-          {canPickValence ? (
-            <div className="flex gap-1.5">
-              {(["POSITIVA", "NEGATIVA"] as Valence[]).map((valence) => {
-                const active = state.filter.valence === valence;
-                const color = VALENCE_COLOR[valence];
+      {showSort ? (
+        <>
+          <div className="ml-auto">
+            <TriggerPill onClick={() => setSortOpen(true)}>
+              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                <path
+                  d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>
+                Ordena: <span className="font-semibold text-ink-100">{currentSortLabel}</span>
+              </span>
+            </TriggerPill>
+          </div>
+
+          <Modal open={sortOpen} onClose={() => setSortOpen(false)} labelledBy="ordenar-por" panelClassName="max-w-xs">
+            <ModalHeader id="ordenar-por" title="Ordenar por" onClose={() => setSortOpen(false)} />
+            <div className="flex flex-col gap-1.5 px-5 py-4">
+              {SORT_OPTIONS.map((option) => {
+                const active = state.sort === option.value;
                 return (
                   <button
-                    key={valence}
+                    key={option.value}
                     type="button"
-                    onClick={() => state.toggleValence(valence)}
-                    aria-pressed={active}
-                    className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                    style={
+                    onClick={() => {
+                      state.setSort(option.value);
+                      setSortOpen(false);
+                    }}
+                    className={[
+                      "flex items-center justify-between rounded-xl border px-3.5 py-2.5 text-sm font-medium transition",
                       active
-                        ? { backgroundColor: color, borderColor: color, color: "#08090c" }
-                        : { borderColor: `${color}66`, color }
-                    }
+                        ? "border-ink-100 bg-ink-100 text-ink-950"
+                        : "border-ink-700 bg-ink-850 text-ink-300 hover:border-ink-600",
+                    ].join(" ")}
                   >
-                    {valence === "POSITIVA" ? "Positivas" : "Negativas"}
+                    {option.label}
+                    {active ? (
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : null}
                   </button>
                 );
               })}
             </div>
-          ) : null}
-
-          {showSort ? (
-            <label className="ml-auto flex items-center gap-1.5 text-xs text-ink-400">
-              <span className="sr-only sm:not-sr-only">Orden</span>
-              <select
-                value={state.sort}
-                onChange={(event) => state.setSort(event.target.value as "recientes" | "intensidad")}
-                className="rounded-full border border-ink-700 bg-ink-850 px-3 py-1.5 text-xs text-ink-100 outline-none focus:border-ink-400"
-              >
-                <option value="recientes">Más recientes</option>
-                <option value="intensidad">Mayor intensidad</option>
-              </select>
-            </label>
-          ) : null}
-        </div>
+          </Modal>
+        </>
       ) : null}
-
-      {visibleCounts.length > 0 ? (
-        <EmotionChipGrid entries={visibleCounts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
-      ) : null}
-    </section>
+    </div>
   );
 }
