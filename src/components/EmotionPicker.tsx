@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useJournal } from "./JournalProvider";
+import { MORE_CLAMP_KEY, useWrapClamp } from "./useWrapClamp";
 import { GROUP_COLOR, normalize } from "@/lib/emotions";
 import type { EmotionEntry, Valence } from "@/lib/types";
 
@@ -11,6 +12,14 @@ const VALENCE_COLOR: Record<Valence, string> = {
 };
 
 const DEFAULT_LEVEL = 5;
+const CHIP_CLASS = "rounded-full border px-3 py-1.5 text-xs font-medium whitespace-nowrap";
+
+interface PickerChip {
+  key: string;
+  label: string;
+  valence: Valence;
+  isNew: boolean;
+}
 
 /**
  * Selector de emociones con nivel. Toma el catálogo base más las emociones
@@ -41,6 +50,17 @@ export function EmotionPicker({
     !catalog.POSITIVA.some((e) => normalize(e.name) === normalize(trimmed)) &&
     !catalog.NEGATIVA.some((e) => normalize(e.name) === normalize(trimmed)) &&
     !selectedKeys.has(normalize(trimmed));
+
+  // El chip de crear va primero, para que quede visible sin necesidad de
+  // "Ver más" mientras se está escribiendo una emoción nueva.
+  const chips = useMemo<PickerChip[]>(() => {
+    const items: PickerChip[] = [];
+    if (canCreate) items.push({ key: `crear:${normalize(trimmed)}`, label: trimmed, valence, isNew: true });
+    for (const entry of suggestions) items.push({ key: normalize(entry.name), label: entry.name, valence: entry.valence, isNew: false });
+    return items;
+  }, [canCreate, trimmed, valence, suggestions]);
+
+  const { containerRef, measureRef, shown, expanded, needsToggle, toggleExpanded } = useWrapClamp(chips, 4);
 
   function add(name: string, entryValence: Valence) {
     if (selectedKeys.has(normalize(name))) return;
@@ -124,31 +144,63 @@ export function EmotionPicker({
         className="rounded-xl border border-ink-700 bg-ink-850 px-3 py-2.5 text-sm outline-none placeholder:text-ink-600 focus:border-ink-400"
       />
 
-      <div className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto pr-1 thin-scrollbar">
-        {canCreate ? (
-          <button
-            type="button"
-            onClick={() => add(trimmed, valence)}
-            className="rounded-full border border-dashed px-3 py-1.5 text-xs font-medium"
-            style={{ borderColor: VALENCE_COLOR[valence], color: VALENCE_COLOR[valence] }}
+      {chips.length > 0 ? (
+        <div>
+          {/* Medidor oculto: mismas clases que los chips reales (el de crear
+              incluido), para que el ancho medido coincida con el visible. */}
+          <div
+            ref={measureRef}
+            aria-hidden
+            className="pointer-events-none fixed top-[-9999px] left-[-9999px] whitespace-nowrap"
           >
-            + Añadir «{trimmed}»
-          </button>
-        ) : null}
-        {suggestions.map((entry) => (
-          <button
-            key={entry.name}
-            type="button"
-            onClick={() => add(entry.name, entry.valence)}
-            className="rounded-full border border-ink-700 bg-ink-850 px-3 py-1.5 text-xs text-ink-300 transition hover:border-ink-500 hover:text-ink-100"
-          >
-            {entry.name}
-          </button>
-        ))}
-        {suggestions.length === 0 && !canCreate ? (
-          <span className="py-1.5 text-xs text-ink-600">No quedan emociones que coincidan.</span>
-        ) : null}
-      </div>
+            {chips.map((chip) => (
+              <button key={chip.key} type="button" data-clamp-key={chip.key} className={CHIP_CLASS} tabIndex={-1}>
+                {chip.isNew ? `+ Añadir «${chip.label}»` : chip.label}
+              </button>
+            ))}
+            <button type="button" data-clamp-key={MORE_CLAMP_KEY} className={CHIP_CLASS} tabIndex={-1}>
+              Ver más
+            </button>
+          </div>
+
+          <div ref={containerRef} className="flex flex-wrap gap-1.5">
+            {shown.map((chip) =>
+              chip.isNew ? (
+                <button
+                  key={chip.key}
+                  type="button"
+                  onClick={() => add(chip.label, chip.valence)}
+                  className={`${CHIP_CLASS} border-dashed`}
+                  style={{ borderColor: VALENCE_COLOR[chip.valence], color: VALENCE_COLOR[chip.valence] }}
+                >
+                  + Añadir «{chip.label}»
+                </button>
+              ) : (
+                <button
+                  key={chip.key}
+                  type="button"
+                  onClick={() => add(chip.label, chip.valence)}
+                  className={`${CHIP_CLASS} border-ink-700 bg-ink-850 text-ink-300 transition hover:border-ink-500 hover:text-ink-100`}
+                >
+                  {chip.label}
+                </button>
+              ),
+            )}
+
+            {needsToggle ? (
+              <button
+                type="button"
+                onClick={toggleExpanded}
+                className={`${CHIP_CLASS} border-dashed border-ink-600 text-ink-300 transition hover:border-ink-400 hover:text-ink-100`}
+              >
+                {expanded ? "Ver menos" : "Ver más"}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        <p className="py-1.5 text-xs text-ink-600">No quedan emociones que coincidan.</p>
+      )}
     </fieldset>
   );
 }

@@ -100,7 +100,10 @@ Se abre desde el (+) en cualquier pantalla que lo tenga y pregunta, en este orde
 2. **Situación** — qué ocurre, con quién estoy, dónde, etc.
 3. **Emociones** — una o más, cada una con **nivel de 0 a 10**. Se eligen de un catálogo
    separado por signo, con buscador, y se pueden crear nuevas escribiéndolas: se guardan con el
-   signo que esté activo en el conmutador.
+   signo que esté activo en el conmutador. Los chips del catálogo se muestran **sin scroll, como
+   mucho 4 filas**; si no caben todos, la última posición es un botón «Ver más» (y «Ver menos»
+   para recogerlos). Mientras se escribe una emoción nueva, el chip de crearla va siempre
+   primero, visible sin necesidad de desplegar nada.
 4. **Pensamientos** — lista, una tarjeta por pensamiento.
 5. **Acciones** — lista, una tarjeta por acción.
 
