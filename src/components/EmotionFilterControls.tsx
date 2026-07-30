@@ -39,23 +39,23 @@ export function EmotionFilterControls({
 
   return (
     <section className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-xs font-medium tracking-wide text-ink-400 uppercase">Filtra por emociones</h2>
+      <h2 className="text-sm font-medium text-ink-300">Filtra por emociones</h2>
+
+      <div>
         <button
           type="button"
           onClick={state.clear}
           disabled={!state.active}
-          aria-label="Limpiar filtros"
-          title="Limpiar filtros"
-          className="-mr-1 flex h-8 w-8 items-center justify-center rounded-full text-ink-400 transition enabled:hover:bg-ink-800 enabled:hover:text-ink-100 disabled:opacity-30"
+          className="flex items-center gap-1.5 rounded-full border border-ink-700 px-3 py-1.5 text-xs text-ink-300 transition enabled:hover:border-ink-500 enabled:hover:text-ink-100 disabled:opacity-30"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path
               d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
+          Limpiar filtro
         </button>
       </div>
 

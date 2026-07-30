@@ -34,8 +34,9 @@ tiempo y a las páginas de grupo.
 - La fecha personalizada se elige en un calendario:
   - Sin filtro personalizado activo se abre en **el mes actual**, con **hoy marcado** con un punto.
   - Con filtro activo se abre en el mes del día elegido, o en el del **final del rango**.
-  - Se puede cambiar de mes **entre el mes del primer registro y el mes actual**. Nunca a meses
-    futuros, y los días futuros del mes en curso salen deshabilitados.
+  - Se puede cambiar de mes **entre el mes del primer registro y el mes actual**, ambos incluidos.
+    Nunca a meses futuros ni anteriores a la primera entrada del diario, y los días futuros del
+    mes en curso salen deshabilitados.
   - Un toque elige un día; el segundo cierra el rango. Si el segundo día es anterior al primero,
     pasa a ser el inicio.
   - No se aplica nada hasta pulsar **Aplicar**.
@@ -44,9 +45,9 @@ tiempo y a las páginas de grupo.
 
 ## Filtro de emociones (listado, línea de tiempo y páginas de grupo)
 
-El bloque se titula **«Filtra por emociones»** y lleva a su derecha, encima de los controles, un
-botón de **papelera** para limpiar. Está siempre visible —para que se sepa que se puede
-limpiar— y apagado mientras no haya ningún filtro puesto.
+El bloque se titula **«Filtra por emociones»** y justo debajo del título lleva un botón con icono
+de **papelera** y el texto **«Limpiar filtro»**. Está siempre visible —para que se sepa que se
+puede limpiar— y apagado mientras no haya ningún filtro puesto.
 
 - **Signo**: «Positivas» y «Negativas» son de **selección única**. Marcar uno desmarca el otro, y
   volver a pulsar el que está activo lo quita. Solo aparecen si en pantalla hay emociones de los

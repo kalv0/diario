@@ -14,10 +14,10 @@ import { createPortal } from "react-dom";
  * —sesenta píxeles de alto— y se salen de la pantalla por arriba.
  *
  * Variantes:
- * - `sheet`: hoja pegada abajo en móvil, tarjeta centrada a partir de `sm`.
+ * - `center`: tarjeta centrada en pantalla, con margen alrededor.
  * - `full`: pantalla completa en móvil, tarjeta centrada a partir de `sm`.
  *
- * En las dos, el panel nunca supera el alto del viewport. Los hijos se colocan
+ * En las dos, el panel nunca supera el alto disponible. Los hijos se colocan
  * en columna, así que el bloque que deba desplazarse necesita
  * `flex-1 min-h-0 overflow-y-auto`.
  */
@@ -26,14 +26,14 @@ export function Modal({
   onClose,
   labelledBy,
   children,
-  variant = "sheet",
+  variant = "center",
   panelClassName = "",
 }: {
   open: boolean;
   onClose: () => void;
   labelledBy?: string;
   children: React.ReactNode;
-  variant?: "sheet" | "full";
+  variant?: "center" | "full";
   panelClassName?: string;
 }) {
   const [mounted, setMounted] = useState(false);
@@ -64,9 +64,18 @@ export function Modal({
       aria-modal="true"
       aria-labelledby={labelledBy}
       className={[
-        "fixed inset-0 z-50 flex animate-fade-in justify-center bg-black/70 backdrop-blur-sm sm:p-4",
-        isFull ? "items-stretch sm:items-center" : "items-end sm:items-center",
+        "fixed inset-0 z-50 flex animate-fade-in justify-center bg-black/70 backdrop-blur-sm",
+        isFull ? "items-stretch sm:items-center sm:p-4" : "items-center p-4",
       ].join(" ")}
+      style={
+        isFull
+          ? undefined
+          : {
+              // Márgenes que respetan el notch y la barra inferior del móvil.
+              paddingTop: "calc(1rem + var(--safe-top))",
+              paddingBottom: "calc(1rem + var(--safe-bottom))",
+            }
+      }
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -75,14 +84,11 @@ export function Modal({
         className={[
           "animate-pop-in flex w-full flex-col overflow-hidden border-ink-700 bg-ink-900 shadow-2xl shadow-black/60",
           isFull
-            ? "h-dvh border-x-0 border-y-0 sm:h-auto sm:max-h-[90dvh] sm:rounded-3xl sm:border"
-            : "max-h-dvh rounded-t-3xl border sm:max-h-[90dvh] sm:rounded-3xl",
+            ? "h-dvh sm:h-auto sm:max-h-full sm:rounded-3xl sm:border"
+            : "max-h-full rounded-3xl border",
           panelClassName || "max-w-lg",
         ].join(" ")}
-        style={{
-          paddingBottom: "var(--safe-bottom)",
-          paddingTop: isFull ? "var(--safe-top)" : undefined,
-        }}
+        style={isFull ? { paddingBottom: "var(--safe-bottom)", paddingTop: "var(--safe-top)" } : undefined}
       >
         {children}
       </div>
