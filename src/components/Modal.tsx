@@ -1,27 +1,45 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 /**
- * Capa modal básica: fondo oscuro, cierre con Escape o tocando fuera y bloqueo
- * del scroll del documento mientras está abierta. En móvil el panel se pega
- * abajo (hoja) y en pantallas grandes se centra.
+ * Capa modal: fondo oscuro, cierre con Escape o tocando fuera y bloqueo del
+ * scroll del documento mientras está abierta.
+ *
+ * Se pinta con un portal sobre <body> y no donde se declara. Es obligatorio:
+ * la cabecera lleva `backdrop-blur`, y un `backdrop-filter` convierte al
+ * elemento en bloque contenedor de sus descendientes `position: fixed`. Sin el
+ * portal, los popups que salen de la cabecera se posicionan respecto a ella
+ * —sesenta píxeles de alto— y se salen de la pantalla por arriba.
+ *
+ * Variantes:
+ * - `sheet`: hoja pegada abajo en móvil, tarjeta centrada a partir de `sm`.
+ * - `full`: pantalla completa en móvil, tarjeta centrada a partir de `sm`.
+ *
+ * En las dos, el panel nunca supera el alto del viewport. Los hijos se colocan
+ * en columna, así que el bloque que deba desplazarse necesita
+ * `flex-1 min-h-0 overflow-y-auto`.
  */
 export function Modal({
   open,
   onClose,
   labelledBy,
   children,
-  align = "center",
+  variant = "sheet",
   panelClassName = "",
 }: {
   open: boolean;
   onClose: () => void;
   labelledBy?: string;
   children: React.ReactNode;
-  align?: "center" | "sheet";
+  variant?: "sheet" | "full";
   panelClassName?: string;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -36,16 +54,18 @@ export function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  const isFull = variant === "full";
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelledBy}
       className={[
-        "fixed inset-0 z-50 flex animate-fade-in justify-center bg-black/70 backdrop-blur-sm",
-        align === "sheet" ? "items-end sm:items-center" : "items-center",
+        "fixed inset-0 z-50 flex animate-fade-in justify-center bg-black/70 backdrop-blur-sm sm:p-4",
+        isFull ? "items-stretch sm:items-center" : "items-end sm:items-center",
       ].join(" ")}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -53,15 +73,21 @@ export function Modal({
     >
       <div
         className={[
-          "animate-pop-in w-full overflow-hidden border border-ink-700 bg-ink-900 shadow-2xl shadow-black/60",
-          align === "sheet" ? "rounded-t-3xl sm:rounded-3xl" : "rounded-3xl",
+          "animate-pop-in flex w-full flex-col overflow-hidden border-ink-700 bg-ink-900 shadow-2xl shadow-black/60",
+          isFull
+            ? "h-dvh border-x-0 border-y-0 sm:h-auto sm:max-h-[90dvh] sm:rounded-3xl sm:border"
+            : "max-h-dvh rounded-t-3xl border sm:max-h-[90dvh] sm:rounded-3xl",
           panelClassName || "max-w-lg",
         ].join(" ")}
-        style={{ paddingBottom: align === "sheet" ? "var(--safe-bottom)" : undefined }}
+        style={{
+          paddingBottom: "var(--safe-bottom)",
+          paddingTop: isFull ? "var(--safe-top)" : undefined,
+        }}
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -77,11 +103,11 @@ export function ModalHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-ink-800 px-5 py-4">
-      <h2 id={id} className="text-base font-semibold">
+    <div className="flex shrink-0 items-center justify-between gap-3 border-b border-ink-800 px-5 py-4">
+      <h2 id={id} className="truncate text-base font-semibold">
         {title}
       </h2>
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         {right}
         <button
           type="button"

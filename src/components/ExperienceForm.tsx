@@ -62,11 +62,11 @@ export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () =
   }
 
   return (
-    <Modal open={open} onClose={onClose} align="sheet" labelledBy="nueva-situacion" panelClassName="max-w-lg">
+    <Modal open={open} onClose={onClose} labelledBy="nueva-situacion" panelClassName="max-w-lg">
       <ModalHeader id="nueva-situacion" title="Nueva situación" onClose={onClose} />
 
-      <form onSubmit={handleSubmit} className="flex max-h-[75dvh] flex-col">
-        <div className="thin-scrollbar flex flex-col gap-5 overflow-y-auto px-5 py-4">
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+        <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-medium tracking-wide text-ink-400 uppercase">Día y hora</span>
             <input
@@ -111,10 +111,8 @@ export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () =
           />
         </div>
 
-        <div
-          className="border-t border-ink-800 bg-ink-900 px-5 py-3"
-          style={{ paddingBottom: "calc(0.75rem + var(--safe-bottom))" }}
-        >
+        {/* El área segura la añade el propio panel del modal. */}
+        <div className="shrink-0 border-t border-ink-800 bg-ink-900 px-5 py-3">
           {error ? (
             <p role="alert" className="mb-2 rounded-lg border border-neg/40 bg-neg-soft px-3 py-2 text-xs text-neg">
               {error}

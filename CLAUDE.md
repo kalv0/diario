@@ -45,6 +45,13 @@ interfaz.
   del build.
 - **`src/lib/session.ts` corre en edge.** Importa `jose/jwt/sign` y `jose/jwt/verify`, nunca el
   índice `jose`, y no puede tocar Prisma.
+- **Los popups van siempre por `Modal`**, que los pinta con un portal sobre `<body>`. Un
+  `position: fixed` declarado dentro de la cabecera se posiciona respecto a ella, no respecto a
+  la pantalla, porque su `backdrop-blur` crea bloque contenedor. El síntoma es un popup que se
+  sale por arriba. Lo mismo vale para cualquier ancestro con `transform`, `filter` o `contain`.
+- **Dentro de un `Modal`, el bloque que deba desplazarse necesita `flex-1 min-h-0 overflow-y-auto`.**
+  El panel está topado al alto de la pantalla; sin `min-h-0` el contenido lo desborda en vez de
+  hacer scroll.
 - **Los nombres de emoción se comparan con `normalize()`**, sin acentos ni mayúsculas.
 - **`docker-entrypoint.sh` necesita finales de línea LF.** Lo fuerza `.gitattributes`.
 - Colores por grupo en `GROUP_COLOR` (`src/lib/emotions.ts`); no repartir literales de color por

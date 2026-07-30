@@ -50,10 +50,10 @@ export function DateFilterBar() {
         </svg>
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} align="sheet" labelledBy="filtro-fechas" panelClassName="max-w-sm">
+      <Modal open={open} onClose={() => setOpen(false)} labelledBy="filtro-fechas" panelClassName="max-w-sm">
         <ModalHeader id="filtro-fechas" title="Rango de fechas" onClose={() => setOpen(false)} />
 
-        <div className="px-5 py-4">
+        <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <div className="mb-4 grid grid-cols-3 gap-2">
             {PRESETS.map((preset) => {
               const active = dateFilter.kind === "preset" && dateFilter.preset === preset;

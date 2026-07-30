@@ -43,7 +43,7 @@ export function ExperienceDetail({
   const color = GROUP_COLOR[group];
 
   return (
-    <Modal open onClose={onClose} align="sheet" labelledBy="detalle-experiencia" panelClassName="max-w-lg">
+    <Modal open onClose={onClose} variant="full" labelledBy="detalle-experiencia" panelClassName="max-w-lg">
       <ModalHeader
         id="detalle-experiencia"
         title={GROUP_SINGULAR[group]}
@@ -79,7 +79,7 @@ export function ExperienceDetail({
         }
       />
 
-      <div className="thin-scrollbar max-h-[72dvh] overflow-y-auto px-5 py-4">
+      <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
         <p className="mb-4 flex items-center gap-2 text-xs text-ink-400">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
           {formatDateTime(experience.occurredAt)}

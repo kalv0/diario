@@ -34,8 +34,8 @@ export function DemoAccountCta() {
         Obtener cuenta
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} align="sheet" panelClassName="max-w-sm">
-        <div className="px-6 pt-7 pb-6 text-center">
+      <Modal open={open} onClose={() => setOpen(false)} panelClassName="max-w-sm">
+        <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-6 pt-7 pb-6 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-ink-800 text-ink-100">
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
               <rect x="3" y="5" width="18" height="14" rx="3" />
