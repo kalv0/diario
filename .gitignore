@@ -1,0 +1,34 @@
+# dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# build
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# base de datos local
+*.db
+*.db-journal
+*.sqlite
+prisma/dev.db*
+data/*.db
+
+# entorno y secretos
+.env
+.env.local
+.env.*.local
+cloudflared/*.json
+cloudflared/cert.pem
+
+# herramientas locales
+.claude/settings.local.json
+
+# sistema
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*

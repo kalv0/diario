@@ -1,0 +1,76 @@
+// Diario de situaciones — esquema de datos
+//
+// Decisión de diseño: las emociones se guardan desnormalizadas dentro de cada
+// experiencia (nombre + valencia). El catálogo base vive en data/emotion-catalog.json
+// y el "catálogo del usuario" se calcula como la unión del catálogo base con las
+// emociones personalizadas que ya ha usado. Así no hace falta tabla de emociones
+// ni proceso de seed, y renombrar/añadir emociones no rompe datos históricos.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  username     String       @unique
+  passwordHash String
+  displayName  String?
+  createdAt    DateTime     @default(now())
+  experiences  Experience[]
+}
+
+model Experience {
+  id         String              @id @default(cuid())
+  userId     String
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Fecha y hora en que ocurrió la situación (la que rellena el formulario)
+  occurredAt DateTime
+  /// Qué ocurre, con quién estoy, dónde, etc.
+  situation  String
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  emotions   ExperienceEmotion[]
+  thoughts   Thought[]
+  actions    Action[]
+
+  @@index([userId, occurredAt])
+}
+
+model ExperienceEmotion {
+  id           String     @id @default(cuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  /// Nombre de la emoción tal cual se muestra: "Enfado", "Alegría", ...
+  name         String
+  /// "POSITIVA" | "NEGATIVA"
+  valence      String
+  /// Nivel de sentimiento de 0 a 10
+  level        Int
+
+  @@index([experienceId])
+}
+
+model Thought {
+  id           String     @id @default(cuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  text         String
+  position     Int        @default(0)
+
+  @@index([experienceId])
+}
+
+model Action {
+  id           String     @id @default(cuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  text         String
+  position     Int        @default(0)
+
+  @@index([experienceId])
+}
