@@ -57,6 +57,10 @@ interfaz.
 - **Dentro de un `Modal`, el bloque que deba desplazarse necesita `flex-1 min-h-0 overflow-y-auto`.**
   El panel está topado al alto de la pantalla; sin `min-h-0` el contenido lo desborda en vez de
   hacer scroll.
+- **`EmotionChipGrid` mide en un `<div>` oculto con `ref={measureRef}`.** Si ese `ref` no está
+  puesto, `chipWidths` se queda vacío en silencio (sin error, sin warning) y el componente cae
+  siempre en el atajo «mostrar todo, sin recortar»: es justo el fallo que tuvo la primera versión.
+  Al tocar esa medición, comprueba primero que `chipWidths.size` no sea 0.
 - **Los nombres de emoción se comparan con `normalize()`**, sin acentos ni mayúsculas.
 - **`docker-entrypoint.sh` necesita finales de línea LF.** Lo fuerza `.gitattributes`.
 - Colores por grupo en `GROUP_COLOR` (`src/lib/emotions.ts`); no repartir literales de color por

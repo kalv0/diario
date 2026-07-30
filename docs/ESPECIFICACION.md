@@ -45,16 +45,18 @@ tiempo y a las páginas de grupo.
 
 ## Filtro de emociones (listado, línea de tiempo y páginas de grupo)
 
-El bloque se titula **«Filtra por emociones»** y justo debajo del título lleva un botón con icono
-de **papelera** y el texto **«Limpiar filtro»**. Está siempre visible —para que se sepa que se
-puede limpiar— y apagado mientras no haya ningún filtro puesto.
+El bloque se titula **«Filtra por emociones»**. Justo debajo, un botón con icono de papelera y el
+texto **«Limpiar filtro»** aparece **solo cuando hay algo que limpiar** (signo o alguna emoción
+concreta marcada) y desaparece en cuanto se limpia.
 
 - **Signo**: «Positivas» y «Negativas» son de **selección única**. Marcar uno desmarca el otro, y
   volver a pulsar el que está activo lo quita. Solo aparecen si en pantalla hay emociones de los
   dos signos: en un grupo de un solo signo no habría nada que elegir.
-- **Emociones concretas**: fila desplazable, ordenada por frecuencia, con el recuento al lado.
-  **Con un signo activo solo se ofrecen las emociones de ese signo**, tanto en esta fila como en
-  el diagrama de barras de la página de grupo.
+- **Emociones concretas**: chips ordenados por frecuencia, con el recuento al lado, en una
+  cuadrícula que ajusta filas, **nunca con scroll**. Se muestran como mucho **4 filas**; si no
+  caben todas, la última posición se convierte en un botón **«Ver más»** que despliega el resto
+  (y pasa a «Ver menos» para volver a recogerlas). **Con un signo activo solo se ofrecen las
+  emociones de ese signo**, tanto aquí como en el diagrama de barras de la página de grupo.
 - Al **cambiar de signo se desmarcan las emociones concretas del signo contrario**, porque dejan
   de estar a la vista y un filtro activo que no se ve es un filtro que nadie entiende.
 - **Orden**: con alguna emoción concreta marcada pasa automáticamente a intensidad; al

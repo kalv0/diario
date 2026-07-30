@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { EmotionChipGrid } from "./EmotionChipGrid";
 import type { EmotionFilterState } from "./useEmotionFilter";
 import { GROUP_COLOR } from "@/lib/emotions";
 import { emotionCounts } from "@/lib/journal";
@@ -41,23 +42,24 @@ export function EmotionFilterControls({
     <section className="flex flex-col gap-2">
       <h2 className="text-sm font-medium text-ink-300">Filtra por emociones</h2>
 
-      <div>
-        <button
-          type="button"
-          onClick={state.clear}
-          disabled={!state.active}
-          className="flex items-center gap-1.5 rounded-full border border-ink-700 px-3 py-1.5 text-xs text-ink-300 transition enabled:hover:border-ink-500 enabled:hover:text-ink-100 disabled:opacity-30"
-        >
-          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path
-              d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Limpiar filtro
-        </button>
-      </div>
+      {state.active ? (
+        <div>
+          <button
+            type="button"
+            onClick={state.clear}
+            className="flex items-center gap-1.5 rounded-full border border-ink-700 px-3 py-1.5 text-xs text-ink-300 transition hover:border-ink-500 hover:text-ink-100"
+          >
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path
+                d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Limpiar filtro
+          </button>
+        </div>
+      ) : null}
 
       {canPickValence || showSort ? (
         <div className="flex items-center gap-2">
@@ -103,29 +105,7 @@ export function EmotionFilterControls({
       ) : null}
 
       {visibleCounts.length > 0 ? (
-        <div className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
-          {visibleCounts.map((entry) => {
-            const active = state.activeKeys.includes(entry.key);
-            const color = VALENCE_COLOR[entry.valence];
-            return (
-              <button
-                key={entry.key}
-                type="button"
-                onClick={() => state.toggleEmotion(entry.key, entry.valence)}
-                aria-pressed={active}
-                className="shrink-0 rounded-full border px-3 py-1.5 text-xs whitespace-nowrap transition"
-                style={
-                  active
-                    ? { backgroundColor: color, borderColor: color, color: "#08090c", fontWeight: 600 }
-                    : { borderColor: "var(--color-ink-700)", color: "var(--color-ink-300)" }
-                }
-              >
-                {entry.label}
-                <span className="ml-1 opacity-60 tabular-nums">{entry.count}</span>
-              </button>
-            );
-          })}
-        </div>
+        <EmotionChipGrid entries={visibleCounts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
       ) : null}
     </section>
   );
