@@ -5,6 +5,10 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  // Un `next build` lanzado mientras corre `next dev` machaca el .next del
+  // servidor de desarrollo y este empieza a devolver 404 en /_next/static.
+  // Con esto, `npm run build:check` compila aparte y no lo toca.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {

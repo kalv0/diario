@@ -12,10 +12,15 @@ está en el código.
 
 ```bash
 npm run dev          # servidor de desarrollo (crea el SQLite si no existe)
-npm run build        # compilación de producción; falla ante cualquier error de tipos
+npm run build:check  # compila en .next-check para verificar; NO toca el dev
+npm run build        # compilación de producción real, escribe en .next
 npm run typecheck    # TypeScript sin emitir
 npm run user:create -- <usuario> <contraseña> ["Nombre"]
 ```
+
+**Con `npm run dev` en marcha, verifica siempre con `build:check`, nunca con `build`.** Un
+`next build` sobre `.next` machaca los chunks que está sirviendo el servidor de desarrollo y a
+partir de ahí todo `/_next/static/...` responde 404 hasta que se borra `.next` y se reinicia.
 
 No hay tests automatizados. La verificación se hace ejecutando la app: `/demo` trae 14
 situaciones de ejemplo y no necesita cuenta, así que es el mejor sitio para probar cambios de

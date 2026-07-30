@@ -56,7 +56,8 @@ El paso a paso completo del túnel de Cloudflare está en
 | Comando | Para qué |
 | --- | --- |
 | `npm run dev` | Servidor de desarrollo en el 3000 |
-| `npm run build` | Compilación de producción |
+| `npm run build` | Compilación de producción (escribe en `.next`) |
+| `npm run build:check` | Compila en `.next-check` para verificar sin romper el `npm run dev` en marcha |
 | `npm start` | Sirve la compilación |
 | `npm run typecheck` | TypeScript sin emitir |
 | `npm run user:create -- <usuario> <contraseña> ["Nombre"]` | Alta o cambio de contraseña |
