@@ -182,6 +182,7 @@ por HTTP plano no se guardará: para pruebas de login usa `npm run dev`.
 | El login no responde y el log muestra un error de origen | Falta `ALLOWED_ORIGINS` con el dominio del túnel |
 | El contenedor sale con «SESSION_SECRET no está definida» | El `.env` no está o el secreto tiene menos de 32 caracteres |
 | `network cloudflare declared as external, but could not be found` | La red no existe todavía: `docker network create cloudflare` |
+| `EACCES: permission denied, open '/app/.users'` | El entrypoint ya se encarga de esto copiando el fichero; si reaparece, es que la copia falló. Comprueba que `.users` es legible por el usuario que lanza `docker compose` |
 | El contenedor sale diciendo que `.users` es un directorio | No existía en el host y Docker lo creó como carpeta al montarlo. `docker compose down && rmdir .users && cp .users.example .users` |
 | `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` | El `.sh` se ha subido con finales de línea CRLF. Lo evita `.gitattributes`; si ya pasó, `dos2unix docker-entrypoint.sh` |
 | Error 502 en el dominio | El *public hostname* del túnel no apunta a `diario:1312` |

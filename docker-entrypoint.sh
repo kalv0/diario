@@ -37,7 +37,17 @@ if [ ! -f "$USERS_FILE" ]; then
 fi
 
 echo "→ Sincronizando cuentas desde $USERS_FILE"
-USERS_FILE="$USERS_FILE" su-exec diario:nodejs node scripts/sync-users.mjs
+# El fichero viene del host con su dueño y sus permisos (lo normal es 600 para
+# el usuario que administra el servidor), y dentro del contenedor corremos como
+# "diario", que casi nunca coincide en uid. En vez de obligar a aflojar los
+# permisos del original —que lleva contraseñas en claro—, copiamos aquí una
+# versión legible solo por "diario" y la borramos en cuanto se ha usado.
+USERS_TMP="/tmp/.users-sync"
+cp "$USERS_FILE" "$USERS_TMP"
+chown diario:nodejs "$USERS_TMP"
+chmod 600 "$USERS_TMP"
+USERS_FILE="$USERS_TMP" su-exec diario:nodejs node scripts/sync-users.mjs
+rm -f "$USERS_TMP"
 
 echo "→ Arrancando el diario en el puerto ${PORT:-1312}"
 exec su-exec diario:nodejs "$@"
