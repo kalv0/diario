@@ -4,7 +4,7 @@ import { listExperiences } from "@/lib/experiences-repo";
 import { JournalProvider } from "@/components/JournalProvider";
 
 /**
- * Envoltorio del diario real. Carga las experiencias en el servidor y las
+ * Envoltorio del diario real. Carga las entradas en el servidor y las
  * entrega al proveedor: el layout no se vuelve a montar al navegar entre
  * páginas hermanas, así que el filtro de fechas se mantiene de una a otra.
  */

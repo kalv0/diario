@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { createExperience, listExperiences } from "@/lib/experiences-repo";
+import { parseOrigin } from "@/lib/origin";
 import type { ExperienceInput, Valence } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-const MAX_SITUATION = 4000;
+const MAX_TRIGGER = 4000;
+const MAX_REFLECTION = 8000;
 const MAX_ITEM = 1000;
 const MAX_ITEMS = 30;
 const MAX_EMOTIONS = 12;
@@ -41,12 +43,18 @@ function parseInput(body: unknown): { ok: true; value: ExperienceInput } | { ok:
   if (typeof body !== "object" || body === null) return { ok: false, error: "Cuerpo inválido." };
   const raw = body as Record<string, unknown>;
 
+  const origin = parseOrigin(raw.origin);
+  if (!origin) return { ok: false, error: "Elige el origen de la emoción." };
+
   const occurredAt = new Date(String(raw.occurredAt ?? ""));
   if (Number.isNaN(occurredAt.getTime())) return { ok: false, error: "La fecha y hora no son válidas." };
 
-  const situation = String(raw.situation ?? "").trim();
-  if (!situation) return { ok: false, error: "Describe la situación." };
-  if (situation.length > MAX_SITUATION) return { ok: false, error: "La situación es demasiado larga." };
+  const trigger = String(raw.trigger ?? "").trim();
+  if (!trigger) return { ok: false, error: "Escribe el desencadenante." };
+  if (trigger.length > MAX_TRIGGER) return { ok: false, error: "El desencadenante es demasiado largo." };
+
+  const reflection = String(raw.reflection ?? "").trim();
+  if (reflection.length > MAX_REFLECTION) return { ok: false, error: "La reflexión es demasiado larga." };
 
   if (!Array.isArray(raw.emotions) || raw.emotions.length === 0) {
     return { ok: false, error: "Añade al menos una emoción." };
@@ -76,11 +84,13 @@ function parseInput(body: unknown): { ok: true; value: ExperienceInput } | { ok:
   return {
     ok: true,
     value: {
+      origin,
       occurredAt: occurredAt.toISOString(),
-      situation,
+      trigger,
       emotions,
       thoughts: cleanList(raw.thoughts),
       actions: cleanList(raw.actions),
+      reflection,
     },
   };
 }

@@ -49,7 +49,7 @@ export function DemoAccountCta() {
           </p>
 
           <a
-            href={`mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent("Cuenta para el diario de situaciones")}`}
+            href={`mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent("Cuenta para el diario de emociones")}`}
             className="mt-4 block rounded-2xl bg-ink-100 px-4 py-3 text-sm font-semibold break-all text-ink-950 transition active:scale-[0.98]"
           >
             {ADMIN_EMAIL}

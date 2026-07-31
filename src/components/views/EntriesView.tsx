@@ -5,33 +5,29 @@ import { AppHeader } from "../AppHeader";
 import { EntryFilterControls } from "../EntryFilterControls";
 import { ExperienceResults } from "../ExperienceResults";
 import { useHref, useJournal } from "../JournalProvider";
-import { Timeline } from "../Timeline";
 import { useEntryFilter } from "../useEntryFilter";
-import { filterEntries, sortExperiences, timelineSeries } from "@/lib/journal";
+import { filterEntries, sortExperiences } from "@/lib/journal";
 
 /**
- * Línea de tiempo del rango activo, con el listado debajo en sintonía con los
- * mismos filtros.
+ * Listado completo de entradas del diario. Entra sin filtros y ordenado de más
+ * reciente a menos; hereda siempre el rango de fechas de la cabecera.
  */
-export function TimelineView() {
-  const { experiences, range } = useJournal();
+export function EntriesView() {
+  const { experiences } = useJournal();
   const href = useHref();
   const state = useEntryFilter();
 
-  const filtered = useMemo(() => filterEntries(experiences, state.filter), [experiences, state.filter]);
-  const days = useMemo(() => timelineSeries(filtered, range), [filtered, range]);
-  const list = useMemo(() => sortExperiences(filtered, state.sort), [filtered, state.sort]);
+  const list = useMemo(
+    () => sortExperiences(filterEntries(experiences, state.filter), state.sort),
+    [experiences, state.filter, state.sort],
+  );
 
   return (
     <div className="flex min-h-dvh flex-col">
       <AppHeader backHref={href("/")} />
 
       <main className="flex-1 px-4 pt-4" style={{ paddingBottom: "calc(2rem + var(--safe-bottom))" }}>
-        <h1 className="mb-3 text-lg font-semibold">Línea de tiempo</h1>
-
-        <div className="mb-3">
-          <Timeline days={days} />
-        </div>
+        <h1 className="mb-3 text-lg font-semibold">Entradas del diario</h1>
 
         <div className="mb-4">
           <EntryFilterControls source={experiences} state={state} />

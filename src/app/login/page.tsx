@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LoginForm } from "./LoginForm";
 
-export const metadata: Metadata = { title: "Entrar · Diario de situaciones" };
+export const metadata: Metadata = { title: "Entrar · Diario de emociones" };
 
 export default async function LoginPage({
   searchParams,
@@ -20,7 +20,7 @@ export default async function LoginPage({
             <span className="h-4 w-4 rounded-full bg-mix/80" />
             <span className="h-5 w-5 rounded-full bg-neg/80" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Diario de situaciones</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Diario de emociones</h1>
           <p className="mt-2 text-sm text-ink-400">
             Registra qué pasa, qué sientes, qué piensas y qué haces.
           </p>

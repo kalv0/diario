@@ -1,6 +1,6 @@
 # Notas para trabajar en este repo
 
-Diario personal de situaciones. Next.js 15 (App Router) + React 19 + Tailwind 4 + Prisma/SQLite.
+Diario personal de emociones. Next.js 15 (App Router) + React 19 + Tailwind 4 + Prisma/SQLite.
 Todo el producto, incluidos comentarios, textos de interfaz y mensajes de commit, está **en
 español**.
 
@@ -22,8 +22,8 @@ npm run user:create -- <usuario> <contraseña> ["Nombre"]
 `next build` sobre `.next` machaca los chunks que está sirviendo el servidor de desarrollo y a
 partir de ahí todo `/_next/static/...` responde 404 hasta que se borra `.next` y se reinicia.
 
-No hay tests automatizados. La verificación se hace ejecutando la app: `/demo` trae 14
-situaciones de ejemplo y no necesita cuenta, así que es el mejor sitio para probar cambios de
+No hay tests automatizados. La verificación se hace ejecutando la app: `/demo` trae 16
+entradas de ejemplo y no necesita cuenta, así que es el mejor sitio para probar cambios de
 interfaz.
 
 ## Dónde va cada cosa
@@ -39,6 +39,9 @@ interfaz.
 - **Vistas** → `src/components/views/`. Solo componen; la lógica va en `lib/`.
 - **Rutas nuevas**: hay que crearlas en las **dos** ramas, `src/app/(diario)/` y `src/app/demo/`,
   reutilizando la misma vista.
+- **Vocabulario**: en la interfaz son **entradas**, no situaciones ni experiencias. El tipo interno
+  sigue llamándose `Experience` (y `experiences-repo.ts`, `ExperienceCard`…): es deuda de nombres
+  conocida, no dos conceptos distintos.
 
 ## Reglas que es fácil romper sin querer
 
@@ -74,7 +77,8 @@ interfaz.
 - Mobile first. Se prueba a 375 px de ancho antes que en escritorio.
 - Tema oscuro con los tonos `ink-*` definidos en `src/app/globals.css`; verde para positivo,
   rojo para negativo, amarillo para ambiguo.
-- Textos en español y con concordancia de número: usa `situationsLabel(grupo, n)` en lugar de
-  concatenar «situaciones» con el adjetivo, o acabarás escribiendo «1 situación ambiguas».
+- Textos en español y con concordancia de número: usa `entriesLabel(grupo, n)` y `pluralEntradas(n)`
+  en lugar de concatenar, o acabarás escribiendo «1 entrada ambiguas» y «1 pensamientos». Han
+  pasado las dos cosas.
 - Comentarios solo donde el *por qué* no se deduce del código. Los que hay explican decisiones,
   no repiten lo que ya dice la línea de al lado.

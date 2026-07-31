@@ -5,13 +5,21 @@ cuando algo se comporte de forma dudosa: si el código no coincide con esto, es 
 
 ## Conceptos
 
-**Situación (o experiencia).** Un registro con fecha y hora, una descripción, una o más
-emociones con su nivel, una lista de pensamientos y una lista de acciones.
+**Entrada.** Un registro emocional con origen, fecha y hora, desencadenante, una o más emociones
+con su nivel, pensamientos relacionados, respuesta y una reflexión posterior opcional.
+
+**Origen.** De dónde nace la emoción. Es lo primero que se pregunta porque cambia cómo se lee
+todo lo demás:
+
+| Origen | Icono | Qué es |
+| --- | --- | --- |
+| Situación externa | 🌍 | Algo que ocurrió fuera |
+| Pensamiento interno | 🧠 | Algo que apareció en la cabeza sin desencadenante externo |
 
 **Valencia.** Toda emoción es positiva o negativa. No hay término medio a nivel de emoción:
-la ambigüedad aparece en la situación, no en el sentimiento suelto.
+la ambigüedad aparece en la entrada, no en el sentimiento suelto.
 
-**Grupo.** Se deduce de las emociones de la situación, no se elige a mano:
+**Grupo.** Se deduce de las emociones de la entrada, no se elige a mano:
 
 | Emociones que contiene | Grupo | Color |
 | --- | --- | --- |
@@ -19,7 +27,7 @@ la ambigüedad aparece en la situación, no en el sentimiento suelto.
 | Solo negativas | negativas | rojo |
 | De los dos signos | ambiguas | amarillo |
 
-**Intensidad de una situación.** El nivel más alto de todas sus emociones. Es lo que ordena
+**Intensidad de una entrada.** El nivel más alto de todas sus emociones. Es lo que ordena
 el listado cuando se ordena «por mayor intensidad».
 
 ---
@@ -43,16 +51,19 @@ tiempo y a las páginas de grupo.
 - Volver a un preset (Hoy / 7 días / 30 días) **borra la fecha personalizada**: al reabrir el
   calendario se vuelve a ver el mes actual con hoy marcado y sin selección.
 
-## Filtro de emociones y orden (listado, línea de tiempo y páginas de grupo)
+## Filtros y orden (listado, línea de tiempo y páginas de grupo)
 
-Dos desplegables uno junto al otro: **«Filtra por emociones»** a la izquierda, **«Ordena»** a la
-derecha. Cada uno abre un popup al tocarlo; no ocupan sitio en la página hasta que se abren.
+Dos desplegables uno junto al otro: **«Filtros»** a la izquierda, **«Ordena»** a la derecha. Cada
+uno abre un popup al tocarlo; no ocupan sitio en la página hasta que se abren.
 
-**Filtra por emociones.** El botón lleva icono de embudo y se resalta cuando hay algún filtro
-activo. Dentro del popup:
+**Filtros.** El botón lleva icono de embudo y se resalta cuando hay algún filtro activo. Dentro
+del popup, tres secciones que se combinan con Y:
 
 - Un botón de papelera en la cabecera, junto al cierre, aparece **solo cuando hay algo que
-  limpiar** (signo o alguna emoción concreta marcada) y desaparece en cuanto se limpia.
+  limpiar** y desaparece en cuanto se limpia.
+- **Origen de la emoción**: 🌍 «Situación externa» y 🧠 «Pensamiento interno», de **selección
+  única**. Marcar uno desmarca el otro; volver a pulsar el activo lo quita y se vuelven a ver los
+  dos.
 - **Signo**: «Positivas» y «Negativas» son de **selección única**. Marcar uno desmarca el otro, y
   volver a pulsar el que está activo lo quita. Solo aparecen si en pantalla hay emociones de los
   dos signos: en un grupo de un solo signo no habría nada que elegir.
@@ -74,67 +85,74 @@ volver a tocar los filtros.
 
 Sin scroll: ocupa exactamente el alto de la pantalla.
 
-- La vertical se reparte **solo entre los grupos que tienen situaciones** en el rango:
+- La vertical se reparte **solo entre los grupos que tienen entradas** en el rango:
   uno ocupa todo el alto, dos la mitad cada uno, tres un tercio cada uno.
 - El orden vertical es fijo: **positivas arriba, ambiguas en medio, negativas abajo**.
-- Cada franja muestra su recuento («12 situaciones positivas», «1 situación ambigua»).
+- Cada franja muestra su recuento («12 entradas positivas», «1 entrada ambigua»).
 - Las emociones se dibujan como **burbujas en movimiento continuo**:
   - Todas a la **misma velocidad**, con **dirección inicial aleatoria**, rebotando contra los
     bordes de su franja.
-  - El **radio crece con la raíz del número de situaciones** que referencian esa emoción, de
+  - El **radio crece con la raíz del número de entradas** que referencian esa emoción, de
     modo que el área es proporcional al recuento. Si entre todas ocupan más de un tercio de la
     franja, se reescalan a la baja por igual.
   - En positivas y negativas cada burbuja es **una emoción**. En ambiguas, la **combinación
     única positiva + negativa**: la emoción positiva de mayor nivel junto a la negativa de mayor
-    nivel de esa situación (ver [DECISIONES.md](DECISIONES.md)).
+    nivel de esa entrada (ver [DECISIONES.md](DECISIONES.md)).
   - Con `prefers-reduced-motion` las burbujas se colocan pero no se mueven.
 - Al pulsar una franja se abre la página de ese grupo.
 - Abajo, centrado y siempre en el mismo sitio: el botón **(+)**, y justo debajo los accesos a
-  **Experiencias** y a **Línea de tiempo**.
+  **Entradas** y a **Línea de tiempo**.
 
-## Formulario de nueva situación
+## Formulario de nueva entrada
 
 Se abre desde el (+) en cualquier pantalla que lo tenga y pregunta, en este orden:
 
-1. **Día y hora** — precargados con el momento en que se pulsó el (+). No admite futuro.
-2. **Situación** — qué ocurre, con quién estoy, dónde, etc.
-3. **Emociones** — una o más, cada una con **nivel de 0 a 10**. Se eligen de un catálogo
+1. **Origen** — 🌍 situación externa o 🧠 pensamiento interno. Va primero porque cambia cómo se
+   lee todo lo demás, y la pista del desencadenante se adapta a lo elegido («¿Qué ocurrió?» o
+   «¿Qué pensamiento apareció?»).
+2. **Día y hora** — precargados con el momento en que se pulsó el (+). No admite futuro.
+3. **Desencadenante** — qué ocurrió o qué pensamiento apareció. Es el título de la entrada.
+4. **Emociones** — una o más, cada una con **nivel de 0 a 10**. Se eligen de un catálogo
    separado por signo, con buscador, y se pueden crear nuevas escribiéndolas: se guardan con el
    signo que esté activo en el conmutador. Los chips del catálogo se muestran **sin scroll, como
    mucho 4 filas**; si no caben todos, la última posición es un botón «Ver más» (y «Ver menos»
    para recogerlos). Mientras se escribe una emoción nueva, el chip de crearla va siempre
    primero, visible sin necesidad de desplegar nada.
-4. **Pensamientos** — lista, una tarjeta por pensamiento.
-5. **Acciones** — lista, una tarjeta por acción.
+5. **Pensamientos relacionados** — interpretaciones, conclusiones, ideas que aparecieron. Lista,
+   una tarjeta por pensamiento.
+6. **Respuesta** — qué hice, qué tuve ganas de hacer, qué evité hacer. Lista, una tarjeta por
+   elemento.
+7. **Reflexión posterior** — qué se ve ahora que no se veía en el momento. Texto libre, opcional.
 
-Situación y al menos una emoción son obligatorias. El servidor revalida todo lo que llega.
+Origen, desencadenante y al menos una emoción son obligatorios. El servidor revalida todo lo que
+llega.
 
-## Página de experiencias `/experiencias`
+## Página de entradas del diario `/entradas`
 
-- Entra **sin filtros de emoción** y ordenada **de más reciente a menos**.
+- Entra **sin filtros** y ordenada **de más reciente a menos**.
 - Se puede ordenar además por **mayor intensidad**.
-- Lleva el bloque «Filtra por emociones» descrito más arriba.
+- Lleva el bloque «Filtros» descrito más arriba.
 - Hereda el filtro de fechas de la cabecera.
-- Cada situación es una tarjeta resumen; al pulsarla se abre el **detalle completo** en un popup
+- Cada entrada es una tarjeta resumen, con el icono de su origen; al pulsarla se abre el **detalle completo** en un popup
   con **flechas laterales** para ir a la anterior y a la siguiente **según el orden en que se
   esté viendo la lista**. También funcionan las flechas del teclado.
 
 ## Línea de tiempo `/linea-tiempo`
 
-- Representa el rango de fechas activo como una línea horizontal con un cuadrado por situación,
-  **verdes hacia arriba** (situaciones con alguna emoción positiva) y **rojos hacia abajo** (con
-  alguna emoción negativa). Una situación ambigua suma en los dos lados.
+- Representa el rango de fechas activo como una línea horizontal con un cuadrado por entrada,
+  **verdes hacia arriba** (entradas con alguna emoción positiva) y **rojos hacia abajo** (con
+  alguna emoción negativa). Una entrada ambigua suma en los dos lados.
 - Los cuadrados son cuadrados: el lado es el **ancho de día**, así que la altura de una columna
-  es `nº de situaciones × ancho de día`.
+  es `nº de entradas × ancho de día`.
 - Botones de **más y menos zoom** que cambian ese ancho de día:
   - **Zoom máximo**: el mayor ancho que respeta la altura reservada al diagrama (≈ un tercio del
-    alto de pantalla). Sale de `(alto del diagrama / 2) / día con más situaciones`.
+    alto de pantalla). Sale de `(alto del diagrama / 2) / día con más entradas`.
   - **Zoom mínimo**: el que hace que la línea ocupe todo el ancho disponible, **salvo** que ese
     ancho supere el máximo anterior. Cuando eso pasa, mínimo y máximo coinciden y la línea se
     queda corta a propósito, para no rebasar nunca la altura.
   - Con muchos días, los días quedan muy estrechos y la línea se desplaza lateralmente.
-- El bloque «Filtra por emociones» afecta **al diagrama y al listado a la vez**.
-- Debajo del diagrama va el listado de experiencias con esos mismos filtros.
+- El bloque «Filtros» afecta **al diagrama y al listado a la vez**.
+- Debajo del diagrama va el listado de entradas con esos mismos filtros.
 
 ## Página de grupo `/grupo/{positivas|negativas|ambiguas}`
 
@@ -146,7 +164,7 @@ Situación y al menos una emoción son obligatorias. El servidor revalida todo l
   las emociones de ese signo, para que no haya barras que al pulsarlas contradigan el filtro.
 - El signo solo se puede elegir en el grupo **ambiguo**, que es el único con emociones de los dos
   tipos.
-- Debajo, el listado de experiencias del grupo, con el mismo detalle en popup y las mismas
+- Debajo, el listado de entradas del grupo, con el mismo detalle en popup y las mismas
   flechas de navegación.
 
 ## Login `/login`
@@ -158,9 +176,9 @@ Situación y al menos una emoción son obligatorias. El servidor revalida todo l
 
 ## Demo `/demo`
 
-- El diario completo —burbujas, listado, línea de tiempo, páginas de grupo— con **14 situaciones
+- El diario completo —burbujas, listado, línea de tiempo, páginas de grupo— con **16 entradas
   de ejemplo** generadas siempre relativas a hoy, para que nunca se vea vacío.
-- **Se pueden añadir situaciones nuevas y funcionan con normalidad, pero no se guardan**: viven en
+- **Se pueden añadir entradas nuevas y funcionan con normalidad, pero no se guardan**: viven en
   memoria hasta que se recarga la página. El propio formulario lo avisa.
 - En la cabecera, un CTA discreto **«Obtener cuenta»** abre un aviso explicando que la cuenta la
   da el administrador por correo: **raul@calvo.cc**, con enlace `mailto:` y botón para copiar la

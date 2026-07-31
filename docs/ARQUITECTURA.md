@@ -16,7 +16,7 @@ se espera de algo que va detrás de un túnel privado.
 
 ## Flujo de datos
 
-La decisión que explica casi todo lo demás: **el cliente carga todas las experiencias del
+La decisión que explica casi todo lo demás: **el cliente carga todas las entradas del
 usuario una vez y filtra, agrupa y ordena en memoria**.
 
 ```
@@ -57,11 +57,19 @@ dejaría los ejemplos congelados en la fecha de compilación.
 
 ```
 User ──< Experience ──< ExperienceEmotion   (name, valence, level 0-10)
-                    ──< Thought             (text, position)
-                    ──< Action              (text, position)
+                    ──< Thought             (pensamientos relacionados)
+                    ──< Action              (respuesta)
 ```
 
-Las emociones se guardan **desnormalizadas** dentro de cada experiencia. El catálogo base está
+Cada `Experience` es una entrada del diario: `origin` (`EXTERNA` | `INTERNA`), `occurredAt`,
+`trigger` (el desencadenante, que hace de título) y `reflection` opcional.
+
+Dos detalles del esquema que existen para no romper diarios ya en marcha: `origin` lleva
+`@default("EXTERNA")`, porque las entradas anteriores al campo eran todas situaciones externas; y
+`trigger` se mapea con `@map("situation")` sobre la columna original, ya que renombrarla obligaría
+a un `db push` con pérdida de datos.
+
+Las emociones se guardan **desnormalizadas** dentro de cada entrada. El catálogo base está
 en `data/emotion-catalog.json` y el catálogo que ve el usuario es la unión de ese fichero con
 las emociones personalizadas que ya ha usado (`buildCatalog`). Ventajas: no hace falta tabla de
 emociones ni proceso de *seed*, y añadir emociones al catálogo base nunca toca datos históricos.
@@ -100,11 +108,12 @@ src/lib/
   session.ts                   Firma y verificación del JWT (compatible con edge)
   auth.ts                      Contraseñas, cookie y usuario actual (solo servidor)
   db.ts                        Cliente de Prisma
-  experiences-repo.ts          Lectura y escritura de experiencias (solo servidor)
-  demo-data.ts                 Las 14 situaciones de ejemplo
+  experiences-repo.ts          Lectura y escritura de entradas (solo servidor)
+  demo-data.ts                 Las 16 entradas de ejemplo
+  origin.ts                    Origen de la emoción: etiquetas, iconos y validación
 
 src/components/
-  JournalProvider.tsx          Contexto: datos, filtro de fechas, alta de experiencias
+  JournalProvider.tsx          Contexto: datos, filtro de fechas, alta de entradas
   AppHeader.tsx                Cabecera común con el filtro de fechas centrado
   DateFilterBar.tsx            Presets + calendario
   MonthCalendar.tsx            Calendario de un mes con día suelto o rango
@@ -113,19 +122,21 @@ src/components/
   MainActions.tsx              (+) y accesos a listado y línea de tiempo
   ExperienceForm.tsx           Formulario de alta
   EmotionPicker.tsx            Selección de emociones con nivel
-  ListEditor.tsx               Listas de pensamientos y acciones
+  ListEditor.tsx               Listas de pensamientos relacionados y de respuesta
   ExperienceCard.tsx           Tarjeta resumen
   ExperienceDetail.tsx         Detalle en popup con navegación entre contiguas
   ExperienceResults.tsx        Listado + detalle
-  EmotionFilterControls.tsx    Filtros por signo y emoción, y selector de orden
-  useEmotionFilter.ts          Estado de filtros y regla de orden automático
+  EntryFilterControls.tsx      Filtros (origen, signo, emoción) y selector de orden
+  useEntryFilter.ts            Estado de filtros y regla de orden automático
+  EmotionChipGrid.tsx          Chips de emoción recortados a 4 filas, sin scroll
+  useWrapClamp.ts              Recorte a N filas con «Ver más» (+ lib/row-clamp.ts)
   Timeline.tsx                 Diagrama tipo cotización con zoom
   GroupBarChart.tsx            Barras de emociones de un grupo
   DemoAccountCta.tsx           CTA y aviso de «pídesela al administrador»
   views/                       Composición de cada pantalla
 
 src/app/
-  (diario)/                    Rama privada: /, /experiencias, /linea-tiempo, /grupo/[tipo]
+  (diario)/                    Rama privada: /, /entradas, /linea-tiempo, /grupo/[tipo]
   demo/                        Misma estructura, datos de ejemplo
   login/                       Pantalla y server actions de sesión
   api/experiences/             GET (listar) y POST (crear)
@@ -151,13 +162,13 @@ Los cuadrados son cuadrados, así que la altura de una columna es `nº × anchoD
 todo lo demás:
 
 ```
-anchoMáx = min( (altoDelDiagrama / 2) / díaConMásSituaciones , 44px )
+anchoMáx = min( (altoDelDiagrama / 2) / díaConMásEntradas , 44px )
 anchoAjuste = anchoDisponible / nºDeDías
 anchoMín = min( anchoAjuste , anchoMáx )
 anchoDeDía = anchoMín + (anchoMáx - anchoMín) × (zoom / 8)
 ```
 
-Como `anchoMín ≤ anchoMáx` y `anchoMáx × díaConMásSituaciones ≤ altoDelDiagrama / 2`, el
+Como `anchoMín ≤ anchoMáx` y `anchoMáx × díaConMásEntradas ≤ altoDelDiagrama / 2`, el
 diagrama **no puede** rebasar su altura en ningún nivel de zoom. Cuando `anchoAjuste` supera al
 máximo, mínimo y máximo coinciden y la línea no llega a ocupar todo el ancho: es el
 comportamiento correcto, no un fallo de maquetación.

@@ -12,7 +12,7 @@ function parseGroup(value: string): GroupType | null {
 export async function generateMetadata({ params }: { params: Promise<{ tipo: string }> }) {
   const { tipo } = await params;
   const group = parseGroup(tipo);
-  return { title: group ? `${GROUP_TITLE[group]} · Diario de situaciones` : "Diario de situaciones" };
+  return { title: group ? `${GROUP_TITLE[group]} · Diario de emociones` : "Diario de emociones" };
 }
 
 export default async function Page({ params }: { params: Promise<{ tipo: string }> }) {

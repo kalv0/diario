@@ -18,7 +18,7 @@ const SPEED = 20; // px/s
 /**
  * Campo de burbujas en movimiento continuo. Rebotan contra los bordes de su
  * zona, todas a la misma velocidad y con dirección inicial aleatoria. El radio
- * depende del número de experiencias asociadas a esa emoción.
+ * depende del número de entradas asociadas a esa emoción.
  *
  * La animación escribe directamente sobre el DOM (transform) en vez de pasar
  * por el estado de React: con 20-30 burbujas a 60 fps, re-renderizar sería
@@ -189,7 +189,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Radio de cada burbuja: crece con la raíz del número de experiencias (área
+ * Radio de cada burbuja: crece con la raíz del número de entradas (área
  * proporcional al recuento) y se reescala si entre todas ocupan demasiado.
  */
 function computeRadii(bubbles: Bubble[], width: number, height: number): number[] {

@@ -14,7 +14,7 @@ interface JournalContextValue {
   /** "" para el diario real, "/demo" para la demo. Prefija todos los enlaces. */
   basePath: string;
   username: string | null;
-  /** Todas las experiencias, sin filtro de fecha. */
+  /** Todas las entradas, sin filtro de fecha. */
   allExperiences: Experience[];
   /** Las que caen dentro del filtro de fecha de la barra superior. */
   experiences: Experience[];

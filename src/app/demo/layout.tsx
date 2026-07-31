@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { JournalProvider } from "@/components/JournalProvider";
 import { createDemoExperiences } from "@/lib/demo-data";
 
-export const metadata: Metadata = { title: "Demo · Diario de situaciones" };
+export const metadata: Metadata = { title: "Demo · Diario de emociones" };
 
 // Los datos de ejemplo se calculan respecto a "hoy": si Next prerenderizara
 // esta rama en el build, la demo iría envejeciendo hasta quedarse vacía.

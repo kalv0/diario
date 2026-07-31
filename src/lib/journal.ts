@@ -1,13 +1,13 @@
 import { dayKey, eachDayKey, type DateRange } from "./date-filter";
 import { dominant, normalize } from "./emotions";
-import type { Bubble, Experience, GroupType, Valence } from "./types";
+import type { Bubble, Experience, GroupType, Origin, Valence } from "./types";
 
 /* -------------------------------------------------------------------------- */
 /* Clasificación                                                               */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Una situación es positiva si solo tiene emociones positivas, negativa si solo
+ * Una entrada es positiva si solo tiene emociones positivas, negativa si solo
  * tiene negativas y ambigua si tiene de los dos signos. Sin emociones se trata
  * como ambigua (no debería ocurrir: el formulario exige al menos una).
  */
@@ -30,10 +30,10 @@ export function maxLevel(exp: Experience): number {
 }
 
 /**
- * Etiqueta de burbuja de una situación ambigua: la emoción positiva de mayor
+ * Etiqueta de burbuja de una entrada ambigua: la emoción positiva de mayor
  * nivel combinada con la negativa de mayor nivel ("par dominante"). Cada
  * experiencia aporta exactamente una burbuja, así la suma de burbujas coincide
- * con el recuento de situaciones del grupo.
+ * con el recuento de entradas del grupo.
  */
 export function mixedPairLabel(exp: Experience): string {
   const pos = dominant(exp, "POSITIVA");
@@ -140,27 +140,34 @@ export interface SelectedEmotion {
   valence: Valence;
 }
 
-export interface EmotionFilter {
+/**
+ * Filtro de entradas. Tiene tres dimensiones independientes que se combinan
+ * con Y: origen, signo y emociones concretas.
+ */
+export interface EntryFilter {
+  /** Origen activo. Solo puede haber uno; `null` = los dos. */
+  origin: Origin | null;
   /** Signo activo. Solo puede haber uno; `null` = los dos. */
   valence: Valence | null;
   /** Emociones concretas activas. Vacío = todas. */
   emotions: SelectedEmotion[];
 }
 
-export const EMPTY_EMOTION_FILTER: EmotionFilter = { valence: null, emotions: [] };
+export const EMPTY_ENTRY_FILTER: EntryFilter = { origin: null, valence: null, emotions: [] };
 
-export function isEmotionFilterActive(filter: EmotionFilter): boolean {
-  return filter.valence !== null || filter.emotions.length > 0;
+export function isEntryFilterActive(filter: EntryFilter): boolean {
+  return filter.origin !== null || filter.valence !== null || filter.emotions.length > 0;
 }
 
-export function filterByEmotions(experiences: Experience[], filter: EmotionFilter): Experience[] {
-  if (!isEmotionFilterActive(filter)) return experiences;
+export function filterEntries(experiences: Experience[], filter: EntryFilter): Experience[] {
+  if (!isEntryFilterActive(filter)) return experiences;
   const wantedEmotions = new Set(filter.emotions.map((e) => e.key));
 
   return experiences.filter((exp) => {
+    const originOk = filter.origin === null || exp.origin === filter.origin;
     const valenceOk = filter.valence === null || exp.emotions.some((e) => e.valence === filter.valence);
     const emotionOk = wantedEmotions.size === 0 || exp.emotions.some((e) => wantedEmotions.has(normalize(e.name)));
-    return valenceOk && emotionOk;
+    return originOk && valenceOk && emotionOk;
   });
 }
 
@@ -191,9 +198,9 @@ export function sortExperiences(experiences: Experience[], mode: SortMode): Expe
 export interface TimelineDay {
   key: string;
   date: Date;
-  /** Experiencias del día con al menos una emoción positiva. */
+  /** Entradas del día con al menos una emoción positiva. */
   positive: number;
-  /** Experiencias del día con al menos una emoción negativa. */
+  /** Entradas del día con al menos una emoción negativa. */
   negative: number;
   total: number;
 }
@@ -235,8 +242,8 @@ export function earliestDate(experiences: Experience[]): Date | null {
   return earliest === null ? null : new Date(earliest);
 }
 
-export function pluralSituaciones(count: number): string {
-  return count === 1 ? "situación" : "situaciones";
+export function pluralEntradas(count: number): string {
+  return count === 1 ? "entrada" : "entradas";
 }
 
 const GROUP_ADJECTIVE: Record<GroupType, [singular: string, plural: string]> = {
@@ -245,7 +252,7 @@ const GROUP_ADJECTIVE: Record<GroupType, [singular: string, plural: string]> = {
   ambiguas: ["ambigua", "ambiguas"],
 };
 
-/** "situación ambigua" / "situaciones ambiguas", concordando con el recuento. */
-export function situationsLabel(group: GroupType, count: number): string {
-  return `${pluralSituaciones(count)} ${GROUP_ADJECTIVE[group][count === 1 ? 0 : 1]}`;
+/** "entrada ambigua" / "entradas ambiguas", concordando con el recuento. */
+export function entriesLabel(group: GroupType, count: number): string {
+  return `${pluralEntradas(count)} ${GROUP_ADJECTIVE[group][count === 1 ? 0 : 1]}`;
 }

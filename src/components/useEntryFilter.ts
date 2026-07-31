@@ -1,26 +1,28 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { EMPTY_EMOTION_FILTER, isEmotionFilterActive, type EmotionFilter, type SortMode } from "@/lib/journal";
-import type { Valence } from "@/lib/types";
+import { EMPTY_ENTRY_FILTER, isEntryFilterActive, type EntryFilter, type SortMode } from "@/lib/journal";
+import type { Origin, Valence } from "@/lib/types";
 
 /**
- * Estado de filtros por emoción compartido por el listado, la línea de tiempo
+ * Estado de filtros compartido por el listado de entradas, la línea de tiempo
  * y las páginas de grupo.
  *
- * El signo es de selección única: marcar «positivas» desmarca «negativas» y
- * volver a pulsar el que ya está activo lo quita. Al cambiar de signo se
- * descartan las emociones concretas del signo contrario, porque dejan de estar
- * disponibles en el selector y un filtro activo que no se ve es un filtro que
- * nadie entiende.
+ * Origen y signo son de selección única cada uno: marcar «positivas» desmarca
+ * «negativas», y marcar «situación externa» desmarca «pensamiento interno».
+ * Volver a pulsar el que ya está activo lo quita y vuelven a verse los dos.
+ *
+ * Al cambiar de signo se descartan las emociones concretas del signo
+ * contrario, porque dejan de estar disponibles en el selector y un filtro
+ * activo que no se ve es un filtro que nadie entiende.
  *
  * Regla de orden: en cuanto hay alguna emoción concreta marcada se ordena por
  * intensidad; al desmarcarlas todas se vuelve al orden por defecto (recientes
  * primero). Si el usuario elige un orden a mano, su elección manda hasta que
  * vuelva a tocar los filtros.
  */
-export function useEmotionFilter(initial: EmotionFilter = EMPTY_EMOTION_FILTER) {
-  const [filter, setFilter] = useState<EmotionFilter>(initial);
+export function useEntryFilter(initial: EntryFilter = EMPTY_ENTRY_FILTER) {
+  const [filter, setFilter] = useState<EntryFilter>(initial);
   const [manualSort, setManualSort] = useState<SortMode | null>(null);
 
   const toggleEmotion = useCallback((key: string, valence: Valence) => {
@@ -38,15 +40,21 @@ export function useEmotionFilter(initial: EmotionFilter = EMPTY_EMOTION_FILTER) 
     setFilter((prev) => {
       const next = prev.valence === valence ? null : valence;
       return {
+        ...prev,
         valence: next,
         emotions: next === null ? prev.emotions : prev.emotions.filter((e) => e.valence === next),
       };
     });
   }, []);
 
+  const toggleOrigin = useCallback((origin: Origin) => {
+    setManualSort(null);
+    setFilter((prev) => ({ ...prev, origin: prev.origin === origin ? null : origin }));
+  }, []);
+
   const clear = useCallback(() => {
     setManualSort(null);
-    setFilter(EMPTY_EMOTION_FILTER);
+    setFilter(EMPTY_ENTRY_FILTER);
   }, []);
 
   const autoSort: SortMode = filter.emotions.length > 0 ? "intensidad" : "recientes";
@@ -60,14 +68,15 @@ export function useEmotionFilter(initial: EmotionFilter = EMPTY_EMOTION_FILTER) 
       filter,
       sort,
       activeKeys,
-      active: isEmotionFilterActive(filter),
+      active: isEntryFilterActive(filter),
       toggleEmotion,
       toggleValence,
+      toggleOrigin,
       clear,
       setSort: setManualSort,
     }),
-    [filter, sort, activeKeys, toggleEmotion, toggleValence, clear],
+    [filter, sort, activeKeys, toggleEmotion, toggleValence, toggleOrigin, clear],
   );
 }
 
-export type EmotionFilterState = ReturnType<typeof useEmotionFilter>;
+export type EntryFilterState = ReturnType<typeof useEntryFilter>;

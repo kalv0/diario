@@ -87,13 +87,13 @@ export const GROUP_LABEL: Record<GroupType, string> = {
 };
 
 export const GROUP_TITLE: Record<GroupType, string> = {
-  positivas: "Situaciones positivas",
-  negativas: "Situaciones negativas",
-  ambiguas: "Situaciones ambiguas",
+  positivas: "Entradas positivas",
+  negativas: "Entradas negativas",
+  ambiguas: "Entradas ambiguas",
 };
 
 export const GROUP_SINGULAR: Record<GroupType, string> = {
-  positivas: "Situación positiva",
-  negativas: "Situación negativa",
-  ambiguas: "Situación ambigua",
+  positivas: "Entrada positiva",
+  negativas: "Entrada negativa",
+  ambiguas: "Entrada ambigua",
 };

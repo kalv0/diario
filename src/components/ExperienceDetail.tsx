@@ -5,6 +5,7 @@ import { Modal, ModalHeader } from "./Modal";
 import { formatDateTime } from "@/lib/date-filter";
 import { GROUP_COLOR, GROUP_SINGULAR } from "@/lib/emotions";
 import { classify } from "@/lib/journal";
+import { ORIGIN_ICON, ORIGIN_LABEL } from "@/lib/origin";
 import type { Experience } from "@/lib/types";
 
 /**
@@ -80,13 +81,19 @@ export function ExperienceDetail({
       />
 
       <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
-        <p className="mb-4 flex items-center gap-2 text-xs text-ink-400">
-          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
-          {formatDateTime(experience.occurredAt)}
-        </p>
+        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-400">
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
+            {formatDateTime(experience.occurredAt)}
+          </span>
+          <span className="flex items-center gap-1.5 rounded-full border border-ink-700 px-2 py-0.5">
+            <span aria-hidden>{ORIGIN_ICON[experience.origin]}</span>
+            {ORIGIN_LABEL[experience.origin]}
+          </span>
+        </div>
 
-        <Section title="Situación">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink-100">{experience.situation}</p>
+        <Section title="Desencadenante">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink-100">{experience.trigger}</p>
         </Section>
 
         <Section title="Emociones">
@@ -114,7 +121,7 @@ export function ExperienceDetail({
         </Section>
 
         {experience.thoughts.length > 0 ? (
-          <Section title="Pensamientos">
+          <Section title="Pensamientos relacionados">
             <ul className="flex flex-col gap-1.5">
               {experience.thoughts.map((thought, i) => (
                 <li key={`${i}-${thought}`} className="rounded-xl border border-ink-800 bg-ink-850 px-3 py-2.5 text-sm leading-snug">
@@ -126,7 +133,7 @@ export function ExperienceDetail({
         ) : null}
 
         {experience.actions.length > 0 ? (
-          <Section title="Acciones">
+          <Section title="Respuesta">
             <ul className="flex flex-col gap-1.5">
               {experience.actions.map((action, i) => (
                 <li key={`${i}-${action}`} className="rounded-xl border border-ink-800 bg-ink-850 px-3 py-2.5 text-sm leading-snug">
@@ -134,6 +141,14 @@ export function ExperienceDetail({
                 </li>
               ))}
             </ul>
+          </Section>
+        ) : null}
+
+        {experience.reflection ? (
+          <Section title="Reflexión posterior">
+            <p className="rounded-xl border border-ink-800 bg-ink-850 px-3 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-ink-100">
+              {experience.reflection}
+            </p>
           </Section>
         ) : null}
       </div>

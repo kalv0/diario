@@ -9,14 +9,14 @@ const ZOOM_STEPS = 8;
 
 /**
  * Diagrama tipo cotización: cada día es una columna de cuadrados verdes hacia
- * arriba (experiencias con emoción positiva) y rojos hacia abajo (con emoción
- * negativa). Una situación ambigua suma en los dos lados.
+ * arriba (entradas con emoción positiva) y rojos hacia abajo (con emoción
+ * negativa). Una entrada ambigua suma en los dos lados.
  *
  * El zoom cambia el ancho de día. Como los cuadrados son cuadrados, la altura
- * de una columna es (nº de experiencias × ancho de día), así que el ancho
+ * de una columna es (nº de entradas × ancho de día), así que el ancho
  * máximo sale de no rebasar nunca la altura reservada al diagrama:
  *
- *     anchoMáx = (altoDiagrama / 2) / díaConMásExperiencias
+ *     anchoMáx = (altoDiagrama / 2) / díaConMásEntradas
  *
  * El zoom mínimo es el que hace que la línea ocupe todo el ancho disponible,
  * salvo que ese ancho supere el máximo anterior: en ese caso ambos coinciden y

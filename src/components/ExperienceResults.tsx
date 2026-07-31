@@ -3,16 +3,16 @@
 import { useEffect, useState } from "react";
 import { ExperienceCard } from "./ExperienceCard";
 import { ExperienceDetail } from "./ExperienceDetail";
-import { pluralSituaciones } from "@/lib/journal";
+import { pluralEntradas } from "@/lib/journal";
 import type { Experience } from "@/lib/types";
 
 /**
- * Listado de experiencias ya filtrado y ordenado, con el detalle en popup y
+ * Listado de entradas ya filtrado y ordenado, con el detalle en popup y
  * navegación entre contiguas según el orden que se está viendo.
  */
 export function ExperienceResults({
   experiences,
-  emptyMessage = "No hay experiencias con estos filtros.",
+  emptyMessage = "No hay entradas con estos filtros.",
 }: {
   experiences: Experience[];
   emptyMessage?: string;
@@ -37,7 +37,7 @@ export function ExperienceResults({
     <>
       <p className="mb-2.5 text-xs text-ink-400">
         <span className="font-semibold text-ink-100">{experiences.length}</span>{" "}
-        {pluralSituaciones(experiences.length)}
+        {pluralEntradas(experiences.length)}
       </p>
 
       <ul className="flex flex-col gap-2">

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Diario de situaciones",
+  title: "Diario de emociones",
   description:
     "Registro personal de situaciones, emociones, pensamientos y acciones. Vista de burbujas, línea de tiempo y búsqueda por emoción.",
   robots: { index: false, follow: false },

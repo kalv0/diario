@@ -1,6 +1,6 @@
 /**
  * Filtro de fechas global (la barra de arriba). Afecta a la vista de burbujas,
- * al listado de experiencias, a la línea de tiempo y a las páginas de grupo.
+ * al listado de entradas, a la línea de tiempo y a las páginas de grupo.
  *
  * Todo el cálculo se hace en hora local: las claves de día son "YYYY-MM-DD"
  * construidas a partir de getFullYear/getMonth/getDate, nunca con toISOString(),

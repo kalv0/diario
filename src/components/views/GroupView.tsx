@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 import { AppHeader } from "../AppHeader";
-import { EmotionFilterControls } from "../EmotionFilterControls";
+import { EntryFilterControls } from "../EntryFilterControls";
 import { ExperienceResults } from "../ExperienceResults";
 import { GroupBarChart } from "../GroupBarChart";
 import { useHref, useJournal } from "../JournalProvider";
-import { useEmotionFilter } from "../useEmotionFilter";
+import { useEntryFilter } from "../useEntryFilter";
 import { GROUP_COLOR, GROUP_TITLE } from "@/lib/emotions";
-import { classify, emotionCounts, filterByEmotions, situationsLabel, sortExperiences } from "@/lib/journal";
+import { classify, emotionCounts, entriesLabel, filterEntries, sortExperiences } from "@/lib/journal";
 import type { GroupType } from "@/lib/types";
 
 /**
@@ -19,7 +19,7 @@ import type { GroupType } from "@/lib/types";
 export function GroupView({ group }: { group: GroupType }) {
   const { experiences } = useJournal();
   const href = useHref();
-  const state = useEmotionFilter();
+  const state = useEntryFilter();
 
   const groupExperiences = useMemo(
     () => experiences.filter((exp) => classify(exp) === group),
@@ -34,7 +34,7 @@ export function GroupView({ group }: { group: GroupType }) {
   }, [groupExperiences, state.filter.valence]);
 
   const list = useMemo(
-    () => sortExperiences(filterByEmotions(groupExperiences, state.filter), state.sort),
+    () => sortExperiences(filterEntries(groupExperiences, state.filter), state.sort),
     [groupExperiences, state.filter, state.sort],
   );
 
@@ -50,7 +50,7 @@ export function GroupView({ group }: { group: GroupType }) {
           {GROUP_TITLE[group]}
         </h1>
         <p className="mb-3 text-xs text-ink-400">
-          {groupExperiences.length} {situationsLabel(group, groupExperiences.length)} en el rango seleccionado
+          {groupExperiences.length} {entriesLabel(group, groupExperiences.length)} en el rango seleccionado
         </p>
 
         <div className="mb-3">
@@ -58,12 +58,12 @@ export function GroupView({ group }: { group: GroupType }) {
         </div>
 
         <div className="mb-4">
-          <EmotionFilterControls source={groupExperiences} state={state} showValences={group === "ambiguas"} />
+          <EntryFilterControls source={groupExperiences} state={state} showValences={group === "ambiguas"} />
         </div>
 
         <ExperienceResults
           experiences={list}
-          emptyMessage="No hay experiencias de este grupo en el rango seleccionado."
+          emptyMessage="No hay entradas de este grupo en el rango seleccionado."
         />
       </main>
     </div>

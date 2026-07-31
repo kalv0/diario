@@ -19,7 +19,7 @@ export function MainActions({ onAdd }: { onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
-        aria-label="Añadir nueva situación"
+        aria-label="Añadir nueva entrada"
         className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-ink-100 text-ink-950 shadow-xl shadow-black/50 ring-4 ring-ink-950/70 transition active:scale-95"
       >
         <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -29,13 +29,13 @@ export function MainActions({ onAdd }: { onAdd: () => void }) {
 
       <div className="pointer-events-auto flex items-center gap-2">
         <Link
-          href={href("/experiencias")}
+          href={href("/entradas")}
           className="flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-900/90 px-3.5 py-2 text-xs font-medium text-ink-300 backdrop-blur transition active:scale-95 hover:text-ink-100"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
           </svg>
-          Experiencias
+          Entradas
         </Link>
         <Link
           href={href("/linea-tiempo")}

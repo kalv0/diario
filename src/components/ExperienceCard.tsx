@@ -3,6 +3,7 @@
 import { formatShort, formatTime } from "@/lib/date-filter";
 import { GROUP_COLOR } from "@/lib/emotions";
 import { classify, maxLevel } from "@/lib/journal";
+import { ORIGIN_ICON, ORIGIN_LABEL } from "@/lib/origin";
 import type { Experience } from "@/lib/types";
 
 /** Tarjeta resumen del listado. Al pulsarla se abre el detalle completo. */
@@ -19,6 +20,13 @@ export function ExperienceCard({ experience, onOpen }: { experience: Experience;
     >
       <div className="mb-2 flex items-center gap-2">
         <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
+        <span
+          className="text-sm leading-none"
+          title={ORIGIN_LABEL[experience.origin]}
+          aria-label={ORIGIN_LABEL[experience.origin]}
+        >
+          {ORIGIN_ICON[experience.origin]}
+        </span>
         <span className="text-xs font-medium text-ink-400">
           {formatShort(date)} · {formatTime(date)}
         </span>
@@ -27,7 +35,7 @@ export function ExperienceCard({ experience, onOpen }: { experience: Experience;
         </span>
       </div>
 
-      <p className="line-clamp-3 text-sm leading-snug text-ink-100">{experience.situation}</p>
+      <p className="line-clamp-3 text-sm leading-snug text-ink-100">{experience.trigger}</p>
 
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {experience.emotions.map((emotion) => {
@@ -44,10 +52,19 @@ export function ExperienceCard({ experience, onOpen }: { experience: Experience;
         })}
       </div>
 
-      {experience.thoughts.length > 0 || experience.actions.length > 0 ? (
+      {experience.thoughts.length > 0 || experience.actions.length > 0 || experience.reflection ? (
         <div className="mt-2.5 flex gap-3 text-[11px] text-ink-400">
-          {experience.thoughts.length > 0 ? <span>{experience.thoughts.length} pensamientos</span> : null}
-          {experience.actions.length > 0 ? <span>{experience.actions.length} acciones</span> : null}
+          {experience.thoughts.length > 0 ? (
+            <span>
+              {experience.thoughts.length} {experience.thoughts.length === 1 ? "pensamiento" : "pensamientos"}
+            </span>
+          ) : null}
+          {experience.actions.length > 0 ? (
+            <span>
+              {experience.actions.length} {experience.actions.length === 1 ? "respuesta" : "respuestas"}
+            </span>
+          ) : null}
+          {experience.reflection ? <span>con reflexión</span> : null}
         </div>
       ) : null}
     </button>

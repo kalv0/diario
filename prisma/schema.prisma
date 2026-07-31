@@ -28,14 +28,24 @@ model Experience {
   id         String              @id @default(cuid())
   userId     String
   user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  /// Fecha y hora en que ocurrió la situación (la que rellena el formulario)
+  /// De dónde nace la emoción: "EXTERNA" (situación externa) | "INTERNA" (pensamiento interno).
+  /// Con valor por defecto para que añadir la columna no rompa las entradas ya guardadas,
+  /// que eran todas situaciones externas.
+  origin     String              @default("EXTERNA")
+  /// Fecha y hora en que ocurrió (la que rellena el formulario)
   occurredAt DateTime
-  /// Qué ocurre, con quién estoy, dónde, etc.
-  situation  String
+  /// Desencadenante: qué ocurrió o qué pensamiento apareció. Es el título de la entrada.
+  /// La columna sigue llamándose "situation" a propósito: renombrarla obligaría a un
+  /// db push con pérdida de datos en diarios que ya estén en marcha.
+  trigger    String              @map("situation")
+  /// Reflexión posterior, opcional: se escribe en frío, a veces días después.
+  reflection String?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   emotions   ExperienceEmotion[]
+  /// Pensamientos relacionados: interpretaciones, conclusiones, ideas que aparecieron
   thoughts   Thought[]
+  /// Respuesta: qué hice, qué tuve ganas de hacer, qué evité hacer
   actions    Action[]
 
   @@index([userId, occurredAt])

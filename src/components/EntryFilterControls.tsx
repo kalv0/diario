@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import { EmotionChipGrid } from "./EmotionChipGrid";
 import { Modal, ModalHeader } from "./Modal";
-import type { EmotionFilterState } from "./useEmotionFilter";
+import type { EntryFilterState } from "./useEntryFilter";
 import { GROUP_COLOR } from "@/lib/emotions";
 import { emotionCounts, type SortMode } from "@/lib/journal";
+import { ORIGIN_ICON, ORIGIN_LABEL, ORIGINS } from "@/lib/origin";
 import type { Experience, Valence } from "@/lib/types";
 
 const VALENCE_COLOR: Record<Valence, string> = {
@@ -50,21 +51,22 @@ function TriggerPill({
   );
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{children}</h3>;
+}
+
 /**
- * Filtros por signo y por emoción concreta, más el orden del listado.
- *
- * Los dos son desplegables: «Filtra por emociones» a la izquierda (con el
- * signo, las emociones concretas y limpiar) y «Ordena» a la derecha, que
- * muestra el criterio activo y deja elegir el otro con un toque.
+ * Filtros de entrada (origen, signo y emociones concretas) y orden del
+ * listado, cada uno en su desplegable.
  */
-export function EmotionFilterControls({
+export function EntryFilterControls({
   source,
   state,
   showValences = true,
   showSort = true,
 }: {
   source: Experience[];
-  state: EmotionFilterState;
+  state: EntryFilterState;
   showValences?: boolean;
   showSort?: boolean;
 }) {
@@ -81,85 +83,105 @@ export function EmotionFilterControls({
   );
 
   const currentSortLabel = SORT_OPTIONS.find((o) => o.value === state.sort)?.label ?? "";
-  const showFilterTrigger = counts.length > 0;
-
-  if (!showFilterTrigger && !showSort) return null;
 
   return (
     <div className="flex items-center gap-2">
-      {showFilterTrigger ? (
-        <>
-          <TriggerPill onClick={() => setFilterOpen(true)} active={state.active}>
-            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 5h16l-6 7.5V18l-4 2v-7.5L4 5z" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Filtra por emociones
-          </TriggerPill>
+      <TriggerPill onClick={() => setFilterOpen(true)} active={state.active}>
+        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M4 5h16l-6 7.5V18l-4 2v-7.5L4 5z" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Filtros
+      </TriggerPill>
 
-          <Modal
-            open={filterOpen}
-            onClose={() => setFilterOpen(false)}
-            labelledBy="filtro-emociones"
-            panelClassName="max-w-sm"
-          >
-            <ModalHeader
-              id="filtro-emociones"
-              title="Filtra por emociones"
-              onClose={() => setFilterOpen(false)}
-              right={
-                state.active ? (
+      <Modal open={filterOpen} onClose={() => setFilterOpen(false)} labelledBy="filtros" panelClassName="max-w-sm">
+        <ModalHeader
+          id="filtros"
+          title="Filtros"
+          onClose={() => setFilterOpen(false)}
+          right={
+            state.active ? (
+              <button
+                type="button"
+                onClick={state.clear}
+                aria-label="Limpiar filtro"
+                title="Limpiar filtro"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-ink-400 transition hover:bg-ink-800 hover:text-ink-100"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path
+                    d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            ) : null
+          }
+        />
+
+        <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
+          <section className="mb-4">
+            <SectionTitle>Origen de la emoción</SectionTitle>
+            <div className="grid grid-cols-2 gap-2">
+              {ORIGINS.map((origin) => {
+                const active = state.filter.origin === origin;
+                return (
                   <button
+                    key={origin}
                     type="button"
-                    onClick={state.clear}
-                    aria-label="Limpiar filtro"
-                    title="Limpiar filtro"
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-ink-400 transition hover:bg-ink-800 hover:text-ink-100"
+                    onClick={() => state.toggleOrigin(origin)}
+                    aria-pressed={active}
+                    className={[
+                      "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition",
+                      active
+                        ? "border-ink-100 bg-ink-100 text-ink-950"
+                        : "border-ink-700 bg-ink-850 text-ink-300 hover:border-ink-600",
+                    ].join(" ")}
                   >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path
-                        d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <span aria-hidden>{ORIGIN_ICON[origin]}</span>
+                    <span className="truncate">{ORIGIN_LABEL[origin]}</span>
                   </button>
-                ) : null
-              }
-            />
-
-            <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
-              {canPickValence ? (
-                <div className="mb-3 flex gap-1.5">
-                  {(["POSITIVA", "NEGATIVA"] as Valence[]).map((valence) => {
-                    const active = state.filter.valence === valence;
-                    const color = VALENCE_COLOR[valence];
-                    return (
-                      <button
-                        key={valence}
-                        type="button"
-                        onClick={() => state.toggleValence(valence)}
-                        aria-pressed={active}
-                        className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                        style={
-                          active
-                            ? { backgroundColor: color, borderColor: color, color: "#08090c" }
-                            : { borderColor: `${color}66`, color }
-                        }
-                      >
-                        {valence === "POSITIVA" ? "Positivas" : "Negativas"}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
-
-              {visibleCounts.length > 0 ? (
-                <EmotionChipGrid entries={visibleCounts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
-              ) : null}
+                );
+              })}
             </div>
-          </Modal>
-        </>
-      ) : null}
+          </section>
+
+          {canPickValence ? (
+            <section className="mb-4">
+              <SectionTitle>Signo</SectionTitle>
+              <div className="flex gap-1.5">
+                {(["POSITIVA", "NEGATIVA"] as Valence[]).map((valence) => {
+                  const active = state.filter.valence === valence;
+                  const color = VALENCE_COLOR[valence];
+                  return (
+                    <button
+                      key={valence}
+                      type="button"
+                      onClick={() => state.toggleValence(valence)}
+                      aria-pressed={active}
+                      className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                      style={
+                        active
+                          ? { backgroundColor: color, borderColor: color, color: "#08090c" }
+                          : { borderColor: `${color}66`, color }
+                      }
+                    >
+                      {valence === "POSITIVA" ? "Positivas" : "Negativas"}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
+
+          {visibleCounts.length > 0 ? (
+            <section>
+              <SectionTitle>Emociones</SectionTitle>
+              <EmotionChipGrid entries={visibleCounts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
+            </section>
+          ) : null}
+        </div>
+      </Modal>
 
       {showSort ? (
         <>

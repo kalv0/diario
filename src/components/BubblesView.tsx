@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { BubbleField } from "./BubbleField";
 import { useHref, useJournal } from "./JournalProvider";
 import { GROUP_COLOR } from "@/lib/emotions";
-import { bubblesFor, groupExperiences, situationsLabel } from "@/lib/journal";
+import { bubblesFor, entriesLabel, groupExperiences } from "@/lib/journal";
 import type { GroupType } from "@/lib/types";
 
 /** Orden vertical fijo: positivas arriba, ambiguas en medio, negativas abajo. */
@@ -39,9 +39,9 @@ export function BubblesView() {
           <span className="h-6 w-6 self-center rounded-full border border-mix" />
           <span className="h-7 w-7 self-end rounded-full border border-neg" />
         </div>
-        <p className="text-base font-medium text-ink-300">No hay situaciones en este rango</p>
+        <p className="text-base font-medium text-ink-300">No hay entradas en este rango</p>
         <p className="mt-1 max-w-xs text-sm text-ink-400">
-          Cambia el filtro de fechas de arriba o añade una situación nueva con el botón +.
+          Cambia el filtro de fechas de arriba o añade una entrada nueva con el botón +.
         </p>
       </div>
     );
@@ -56,7 +56,7 @@ export function BubblesView() {
           <Link
             key={group}
             href={href(`/grupo/${group}`)}
-            aria-label={`Ver ${count} ${situationsLabel(group, count)}`}
+            aria-label={`Ver ${count} ${entriesLabel(group, count)}`}
             className={[
               "relative block flex-1 overflow-hidden transition-colors active:bg-white/[0.03]",
               index > 0 ? "border-t border-ink-800/70" : "",
@@ -68,7 +68,7 @@ export function BubblesView() {
             <div className="pointer-events-none absolute top-3 left-4 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
               <span className="text-xs font-medium tracking-wide text-ink-300">
-                <span className="font-semibold text-ink-100">{count}</span> {situationsLabel(group, count)}
+                <span className="font-semibold text-ink-100">{count}</span> {entriesLabel(group, count)}
               </span>
             </div>
           </Link>

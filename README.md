@@ -1,7 +1,8 @@
-# Diario de situaciones
+# Diario de emociones
 
-Diario personal para registrar situaciones y las emociones, pensamientos y acciones que
-las acompañan. Web responsive *mobile first*, con acceso por usuario y contraseña, pensada
+Diario personal para registrar entradas emocionales: de dónde nace cada emoción (una situación
+externa o un pensamiento interno), qué la desencadenó, qué se sintió, qué se pensó, cómo se
+respondió y qué se ve después con perspectiva. Web responsive *mobile first*, con acceso por usuario y contraseña, pensada
 para correr en Docker en un servidor propio y salir a internet por un túnel de Cloudflare.
 
 La pantalla principal reparte el histórico en tres franjas verticales —positivas arriba,

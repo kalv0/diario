@@ -17,6 +17,27 @@ positiva × negativa. Se descartó porque con dos emociones positivas y una nega
 burbujas para una sola situación, y entonces la suma de las burbujas ya no cuadraba con el
 recuento de «N situaciones ambiguas» que aparece al lado. Con el par dominante, cuadra siempre.
 
+## El giro a diario de emociones
+
+El producto empezó como diario de **situaciones** y pasó a ser diario de **emociones**. El cambio
+de fondo es que ahora lo primero que se pregunta es el **origen**: una emoción puede nacer de algo
+que ocurrió fuera (🌍) o de un pensamiento que apareció solo (🧠), y saber cuál de las dos cosas
+fue cambia por completo qué se hace con el registro.
+
+El resto del formulario se reordenó alrededor de esa idea: **desencadenante** (que hace de título),
+emociones, **pensamientos relacionados**, **respuesta** y una **reflexión posterior** opcional que
+se escribe en frío.
+
+Dos decisiones de esquema para no romper diarios que ya estuvieran en marcha:
+
+- `origin` lleva `@default("EXTERNA")`. Añadir una columna obligatoria a una tabla con filas haría
+  fallar el `db push` del arranque; con valor por defecto, las entradas antiguas —que eran todas
+  situaciones externas— quedan clasificadas correctamente sin tocar nada.
+- El campo `trigger` se mapea con `@map("situation")` sobre la columna original. Renombrar la
+  columna de verdad significaría, en SQLite, borrarla y crearla: `prisma db push` lo detectaría
+  como pérdida de datos y se detendría. El nombre de la columna es el precio de no perder texto ya
+  escrito.
+
 ## Tomadas al construir
 
 ### Todo el filtrado ocurre en el cliente
