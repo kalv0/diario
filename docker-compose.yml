@@ -26,10 +26,24 @@ services:
       - ./.users:/app/.users:ro
     networks:
       - cloudflare
-    # No se publica ningún puerto en el host: al contenedor solo se llega desde
-    # la red `cloudflare`. Descomenta para probar en local sin túnel.
-    # ports:
-    #   - "1312:1312"
+    # ========================================================================
+    # TEMPORAL · SOLO PARA VALIDAR DESDE LA RED LOCAL
+    #
+    #        >>> BORRA LAS DOS LÍNEAS DE ABAJO ANTES DE PUBLICAR <<<
+    #                    (`ports:` y `- "1312:1312"`)
+    #
+    # Publican el diario en http://192.168.1.13:1312 para comprobar que el
+    # contenedor sirve sin depender del túnel. Con el túnel en marcha no hacen
+    # falta: cloudflared llega por la red `cloudflare`, y dejarlas puestas deja
+    # el diario abierto a cualquiera de la LAN.
+    #
+    # Aviso: por HTTP plano contra una IP el LOGIN NO FUNCIONA. La cookie de
+    # sesión se emite con el flag Secure y el navegador la descarta fuera de
+    # HTTPS (localhost es la única excepción). Sirve para ver que /login y
+    # /demo cargan, no para entrar.
+    # ========================================================================
+    ports:
+      - "1312:1312"
     expose:
       - "1312"
     healthcheck:
