@@ -17,11 +17,13 @@ export function ExperienceDetail({
   index,
   onIndexChange,
   onClose,
+  onEdit,
 }: {
   experiences: Experience[];
   index: number | null;
   onIndexChange: (index: number) => void;
   onClose: () => void;
+  onEdit: (experience: Experience) => void;
 }) {
   const open = index !== null && index >= 0 && index < experiences.length;
   const experience = open ? experiences[index] : null;
@@ -151,6 +153,29 @@ export function ExperienceDetail({
             </p>
           </Section>
         ) : null}
+      </div>
+
+      {/* Fuera del bloque desplazable: la edición debe estar siempre a la vista,
+          sin obligar a bajar hasta el final de una entrada larga. */}
+      <div
+        className="shrink-0 border-t border-ink-800 bg-ink-900 px-5 py-3"
+        style={{ paddingBottom: "0.75rem" }}
+      >
+        <button
+          type="button"
+          onClick={() => onEdit(experience)}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ink-700 px-4 py-2.5 text-sm font-medium text-ink-100 transition active:scale-[0.98] hover:border-ink-500"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path
+              d="M4 20h4l10.5-10.5a2.12 2.12 0 00-3-3L5 17v3z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path d="M13.5 6.5l4 4" strokeLinecap="round" />
+          </svg>
+          Editar entrada
+        </button>
       </div>
     </Modal>
   );

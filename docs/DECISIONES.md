@@ -99,7 +99,6 @@ recorte visual. La aritmética está en [ARQUITECTURA.md](ARQUITECTURA.md).
 Cosas que no se han hecho porque no estaban en el encargo, ordenadas por lo probable que es que
 hagan falta:
 
-- **Editar y borrar entradas.** Ahora mismo solo se crean y se consultan.
 - **Cambiar la contraseña desde la web.** Se hace editando `.users` en el servidor.
 - **Limitar los intentos de login.** Detrás de un túnel privado el riesgo es bajo, pero un
   contador por IP sería barato de añadir en la server action.

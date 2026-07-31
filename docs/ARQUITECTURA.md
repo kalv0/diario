@@ -110,7 +110,8 @@ src/lib/
   session.ts                   Firma y verificación del JWT (compatible con edge)
   auth.ts                      Contraseñas, cookie y usuario actual (solo servidor)
   db.ts                        Cliente de Prisma
-  experiences-repo.ts          Lectura y escritura de entradas (solo servidor)
+  experiences-repo.ts          Lectura, alta, edición y borrado de entradas (solo servidor)
+  experience-input.ts          Validación del formulario, compartida por alta y edición
   demo-data.ts                 Las 16 entradas de ejemplo
   origin.ts                    Origen de la emoción: etiquetas, iconos y validación
 
@@ -122,7 +123,7 @@ src/components/
   BubblesView.tsx              Reparto de la pantalla en franjas
   BubbleField.tsx              Física de las burbujas
   MainActions.tsx              (+) y accesos a listado y línea de tiempo
-  ExperienceForm.tsx           Formulario de alta
+  ExperienceForm.tsx           Formulario de alta y de edición (el mismo)
   EmotionPicker.tsx            Selección de emociones con nivel
   ListEditor.tsx               Listas de pensamientos relacionados y de respuesta
   ExperienceCard.tsx           Tarjeta resumen
@@ -142,6 +143,7 @@ src/app/
   demo/                        Misma estructura, datos de ejemplo
   login/                       Pantalla y server actions de sesión
   api/experiences/             GET (listar) y POST (crear)
+  api/experiences/[id]/        PUT (editar) y DELETE (borrar), siempre filtrando por userId
   middleware.ts                Puerta de entrada
 ```
 

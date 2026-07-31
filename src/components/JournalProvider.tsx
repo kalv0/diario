@@ -22,6 +22,8 @@ interface JournalContextValue {
   dateFilter: DateFilter;
   setDateFilter: (filter: DateFilter) => void;
   addExperience: (input: ExperienceInput) => Promise<void>;
+  updateExperience: (id: string, input: ExperienceInput) => Promise<void>;
+  deleteExperience: (id: string) => Promise<void>;
   catalog: Record<Valence, CatalogEntry[]>;
   /** Fecha del registro más antiguo: tope al retroceder de mes en el calendario. */
   earliest: Date | null;
@@ -82,6 +84,49 @@ export function JournalProvider({
     [mode],
   );
 
+  const updateExperience = useCallback(
+    async (id: string, input: ExperienceInput) => {
+      if (mode === "demo") {
+        setExperiences((prev) => prev.map((e) => (e.id === id ? { ...e, ...input } : e)));
+        return;
+      }
+
+      const response = await fetch(`/api/experiences/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error ?? "No se ha podido guardar la entrada.");
+      }
+
+      const { experience } = (await response.json()) as { experience: Experience };
+      setExperiences((prev) => prev.map((e) => (e.id === id ? experience : e)));
+    },
+    [mode],
+  );
+
+  const deleteExperience = useCallback(
+    async (id: string) => {
+      if (mode === "demo") {
+        setExperiences((prev) => prev.filter((e) => e.id !== id));
+        return;
+      }
+
+      const response = await fetch(`/api/experiences/${id}`, { method: "DELETE" });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error ?? "No se ha podido eliminar la entrada.");
+      }
+
+      setExperiences((prev) => prev.filter((e) => e.id !== id));
+    },
+    [mode],
+  );
+
   // `earliest` sale de las entradas sin filtrar, así que puede alimentar al
   // rango sin ciclo: el filtro de fechas depende de él, no al revés.
   const earliest = useMemo(() => earliestDate(experiences), [experiences]);
@@ -103,10 +148,25 @@ export function JournalProvider({
       dateFilter,
       setDateFilter,
       addExperience,
+      updateExperience,
+      deleteExperience,
       catalog,
       earliest,
     }),
-    [mode, basePath, username, experiences, filtered, range, dateFilter, addExperience, catalog, earliest],
+    [
+      mode,
+      basePath,
+      username,
+      experiences,
+      filtered,
+      range,
+      dateFilter,
+      addExperience,
+      updateExperience,
+      deleteExperience,
+      catalog,
+      earliest,
+    ],
   );
 
   return <JournalContext.Provider value={value}>{children}</JournalContext.Provider>;

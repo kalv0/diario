@@ -7,15 +7,29 @@ import { ListEditor } from "./ListEditor";
 import { Modal, ModalHeader } from "./Modal";
 import { toDateTimeLocalValue } from "@/lib/date-filter";
 import { ORIGIN_HINT, ORIGIN_ICON, ORIGIN_LABEL, ORIGIN_TRIGGER_HINT, ORIGINS } from "@/lib/origin";
-import type { EmotionEntry, Origin } from "@/lib/types";
+import type { EmotionEntry, Experience, Origin } from "@/lib/types";
 
 /**
- * Formulario de alta de una entrada del diario. Lo primero que pregunta es el
- * origen de la emoción, porque cambia cómo se lee todo lo demás: no es igual
- * describir algo que pasó fuera que un pensamiento que apareció solo.
+ * Formulario de una entrada del diario, el mismo para crear y para editar: si
+ * fueran dos, cualquier campo nuevo habría que añadirlo en los dos sitios.
+ * Con `experience` entra en modo edición, precargado con lo que hay guardado.
+ *
+ * Lo primero que pregunta es el origen de la emoción, porque cambia cómo se lee
+ * todo lo demás: no es igual describir algo que pasó fuera que un pensamiento
+ * que apareció solo.
  */
-export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { addExperience, mode } = useJournal();
+export function ExperienceForm({
+  open,
+  onClose,
+  experience = null,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** Entrada a editar. Sin ella, el formulario da de alta una nueva. */
+  experience?: Experience | null;
+}) {
+  const { addExperience, updateExperience, deleteExperience, mode } = useJournal();
+  const editing = experience !== null;
 
   const [origin, setOrigin] = useState<Origin | null>(null);
   const [occurredAt, setOccurredAt] = useState("");
@@ -26,24 +40,30 @@ export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () =
   const [reflection, setReflection] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** El borrado pide confirmación en el propio pie, sin apilar otro popup. */
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  // Cada apertura arranca en blanco y con la hora actual.
+  // Al abrir: en alta, todo en blanco y con la hora actual; en edición, los
+  // valores guardados.
   useEffect(() => {
     if (!open) return;
-    setOrigin(null);
-    setOccurredAt(toDateTimeLocalValue(new Date()));
-    setTrigger("");
-    setEmotions([]);
-    setThoughts([]);
-    setActions([]);
-    setReflection("");
+    setOrigin(experience?.origin ?? null);
+    setOccurredAt(toDateTimeLocalValue(experience ? new Date(experience.occurredAt) : new Date()));
+    setTrigger(experience?.trigger ?? "");
+    setEmotions(experience ? experience.emotions.map((e) => ({ ...e })) : []);
+    setThoughts(experience ? [...experience.thoughts] : []);
+    setActions(experience ? [...experience.actions] : []);
+    setReflection(experience?.reflection ?? "");
     setError(null);
     setSaving(false);
-  }, [open]);
+    setConfirmingDelete(false);
+    setDeleting(false);
+  }, [open, experience]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (saving) return;
+    if (saving || deleting) return;
 
     if (!origin) return setError("Elige de dónde nace la emoción.");
     if (!trigger.trim()) return setError("Escribe el desencadenante.");
@@ -51,18 +71,21 @@ export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () =
     const date = new Date(occurredAt);
     if (Number.isNaN(date.getTime())) return setError("Revisa la fecha y la hora.");
 
+    const input = {
+      origin,
+      occurredAt: date.toISOString(),
+      trigger: trigger.trim(),
+      emotions,
+      thoughts,
+      actions,
+      reflection: reflection.trim(),
+    };
+
     setSaving(true);
     setError(null);
     try {
-      await addExperience({
-        origin,
-        occurredAt: date.toISOString(),
-        trigger: trigger.trim(),
-        emotions,
-        thoughts,
-        actions,
-        reflection: reflection.trim(),
-      });
+      if (experience) await updateExperience(experience.id, input);
+      else await addExperience(input);
       onClose();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "No se ha podido guardar.");
@@ -70,9 +93,25 @@ export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () =
     }
   }
 
+  async function handleDelete() {
+    if (!experience || deleting) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteExperience(experience.id);
+      onClose();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "No se ha podido eliminar.");
+      setDeleting(false);
+      setConfirmingDelete(false);
+    }
+  }
+
+  const titleId = editing ? "editar-entrada" : "nueva-entrada";
+
   return (
-    <Modal open={open} onClose={onClose} labelledBy="nueva-entrada" panelClassName="max-w-lg">
-      <ModalHeader id="nueva-entrada" title="Nueva entrada" onClose={onClose} />
+    <Modal open={open} onClose={onClose} labelledBy={titleId} panelClassName="max-w-lg">
+      <ModalHeader id={titleId} title={editing ? "Editar entrada" : "Nueva entrada"} onClose={onClose} />
 
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
         <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
@@ -178,13 +217,59 @@ export function ExperienceForm({ open, onClose }: { open: boolean; onClose: () =
               En la demo nada se guarda: al recargar la página vuelve el diario de ejemplo.
             </p>
           ) : null}
+
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || deleting}
             className="w-full rounded-2xl bg-ink-100 px-4 py-3 text-sm font-semibold text-ink-950 transition active:scale-[0.98] disabled:opacity-60"
           >
-            {saving ? "Guardando…" : "Guardar entrada"}
+            {saving ? "Guardando…" : editing ? "Guardar cambios" : "Guardar entrada"}
           </button>
+
+          {editing ? (
+            confirmingDelete ? (
+              <div className="mt-2 rounded-2xl border border-neg/40 bg-neg-soft px-3 py-2.5">
+                <p className="mb-2 text-center text-xs text-ink-100">
+                  Se borrará esta entrada con sus emociones, pensamientos y respuesta. No se puede
+                  deshacer.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingDelete(false)}
+                    disabled={deleting}
+                    className="flex-1 rounded-xl border border-ink-600 px-3 py-2 text-sm font-medium text-ink-100 transition disabled:opacity-60"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="flex-1 rounded-xl bg-neg px-3 py-2 text-sm font-semibold text-ink-950 transition active:scale-[0.98] disabled:opacity-60"
+                  >
+                    {deleting ? "Eliminando…" : "Sí, eliminar"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(true)}
+                disabled={saving}
+                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-neg/40 px-4 py-2.5 text-sm font-medium text-neg transition active:scale-[0.98] disabled:opacity-60"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path
+                    d="M4 7h16M10 4h4a1 1 0 011 1v2H9V5a1 1 0 011-1zM6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Eliminar entrada
+              </button>
+            )
+          ) : null}
         </div>
       </form>
     </Modal>

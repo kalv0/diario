@@ -139,6 +139,20 @@ llega.
   con **flechas laterales** para ir a la anterior y a la siguiente **según el orden en que se
   esté viendo la lista**. También funcionan las flechas del teclado.
 
+### Editar y eliminar
+
+Al pie del detalle, siempre a la vista y fuera del bloque que se desplaza, hay un botón
+**«Editar entrada»** con icono de lápiz. Abre **el mismo formulario del alta**, precargado con lo
+que hay guardado: origen, día y hora, desencadenante, emociones con su nivel, pensamientos,
+respuesta y reflexión.
+
+En modo edición el formulario cambia en tres cosas: se titula «Editar entrada», el botón principal
+dice **«Guardar cambios»**, y debajo aparece **«Eliminar entrada»**.
+
+Eliminar **pide confirmación en el propio pie**, sin apilar otro popup encima: el botón se
+sustituye por un aviso de que la entrada se borra con sus emociones, pensamientos y respuesta, y
+dos botones, «Cancelar» y «Sí, eliminar». Solo el segundo borra, y no se puede deshacer.
+
 ## Línea de tiempo `/linea-tiempo`
 
 - Representa el rango de fechas activo como una línea horizontal con un cuadrado por entrada,

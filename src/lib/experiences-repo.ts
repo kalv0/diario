@@ -57,6 +57,52 @@ export async function listExperiences(userId: string): Promise<Experience[]> {
   return rows.map(toDto);
 }
 
+/**
+ * Actualiza una entrada. Emociones, pensamientos y respuesta se reemplazan
+ * enteros en vez de intentar casar fila por fila: son listas cortas sin
+ * identidad propia y el diff no aportaría nada. Va en transacción para que no
+ * quede una entrada a medio actualizar si algo falla.
+ *
+ * Devuelve null si la entrada no existe o no es de este usuario, que es lo
+ * mismo de cara al cliente: no confirmamos la existencia de entradas ajenas.
+ */
+export async function updateExperience(
+  userId: string,
+  id: string,
+  input: ExperienceInput,
+): Promise<Experience | null> {
+  const owned = await prisma.experience.findFirst({ where: { id, userId }, select: { id: true } });
+  if (!owned) return null;
+
+  const row = await prisma.$transaction(async (tx) => {
+    await tx.experienceEmotion.deleteMany({ where: { experienceId: id } });
+    await tx.thought.deleteMany({ where: { experienceId: id } });
+    await tx.action.deleteMany({ where: { experienceId: id } });
+
+    return tx.experience.update({
+      where: { id },
+      data: {
+        origin: input.origin,
+        occurredAt: new Date(input.occurredAt),
+        trigger: input.trigger,
+        reflection: input.reflection || null,
+        emotions: { create: input.emotions },
+        thoughts: { create: input.thoughts.map((text, position) => ({ text, position })) },
+        actions: { create: input.actions.map((text, position) => ({ text, position })) },
+      },
+      include: INCLUDE,
+    });
+  });
+
+  return toDto(row);
+}
+
+/** Borra una entrada del usuario. Las filas hijas caen por `onDelete: Cascade`. */
+export async function deleteExperience(userId: string, id: string): Promise<boolean> {
+  const { count } = await prisma.experience.deleteMany({ where: { id, userId } });
+  return count > 0;
+}
+
 export async function createExperience(userId: string, input: ExperienceInput): Promise<Experience> {
   const row = await prisma.experience.create({
     data: {
