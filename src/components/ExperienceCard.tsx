@@ -4,6 +4,7 @@ import { formatShort, formatTime } from "@/lib/date-filter";
 import { GROUP_COLOR } from "@/lib/emotions";
 import { classify, maxLevel } from "@/lib/journal";
 import { ORIGIN_ICON, ORIGIN_LABEL } from "@/lib/origin";
+import { TAG_COLOR } from "@/lib/tags";
 import type { Experience } from "@/lib/types";
 
 /** Tarjeta resumen del listado. Al pulsarla se abre el detalle completo. */
@@ -35,7 +36,30 @@ export function ExperienceCard({ experience, onOpen }: { experience: Experience;
         </span>
       </div>
 
-      <p className="line-clamp-3 text-sm leading-snug text-ink-100">{experience.trigger}</p>
+      <p className="line-clamp-3 text-sm leading-snug text-ink-100">{experience.description}</p>
+
+      {experience.areas.length > 0 || experience.involved.length > 0 ? (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {experience.areas.map((name) => (
+            <span
+              key={`a-${name}`}
+              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+              style={{ backgroundColor: `${TAG_COLOR.AREA}1f`, color: TAG_COLOR.AREA }}
+            >
+              {name}
+            </span>
+          ))}
+          {experience.involved.map((name) => (
+            <span
+              key={`i-${name}`}
+              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+              style={{ backgroundColor: `${TAG_COLOR.INVOLUCRADO}1f`, color: TAG_COLOR.INVOLUCRADO }}
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {experience.emotions.map((emotion) => {

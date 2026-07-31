@@ -1,3 +1,4 @@
+import { normalize } from "./emotions";
 import { parseOrigin } from "./origin";
 import type { ExperienceInput, Valence } from "./types";
 
@@ -15,6 +16,7 @@ const MAX_ITEM = 1000;
 const MAX_ITEMS = 30;
 const MAX_EMOTIONS = 12;
 const MAX_NAME = 60;
+const MAX_TAGS = 20;
 
 export type ParseResult = { ok: true; value: ExperienceInput } | { ok: false; error: string };
 
@@ -28,9 +30,9 @@ export function parseExperienceInput(body: unknown): ParseResult {
   const occurredAt = new Date(String(raw.occurredAt ?? ""));
   if (Number.isNaN(occurredAt.getTime())) return { ok: false, error: "La fecha y hora no son válidas." };
 
-  const trigger = String(raw.trigger ?? "").trim();
-  if (!trigger) return { ok: false, error: "Escribe el desencadenante." };
-  if (trigger.length > MAX_TRIGGER) return { ok: false, error: "El desencadenante es demasiado largo." };
+  const description = String(raw.description ?? "").trim();
+  if (!description) return { ok: false, error: "Escribe qué pasó." };
+  if (description.length > MAX_TRIGGER) return { ok: false, error: "La descripción es demasiado larga." };
 
   const reflection = String(raw.reflection ?? "").trim();
   if (reflection.length > MAX_REFLECTION) return { ok: false, error: "La reflexión es demasiado larga." };
@@ -53,6 +55,27 @@ export function parseExperienceInput(body: unknown): ParseResult {
     emotions.push({ name, valence: valence as Valence, level: Math.round(level) });
   }
 
+  // Áreas e involucrados: nombres libres, sin repetir (comparando sin acentos
+  // ni mayúsculas, igual que las emociones) y conservando el orden de entrada.
+  const cleanTags = (value: unknown): string[] => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const item of Array.isArray(value) ? value : []) {
+      const name = String(item ?? "").trim().slice(0, MAX_NAME);
+      if (!name) continue;
+      const key = normalize(name);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(name);
+      if (out.length >= MAX_TAGS) break;
+    }
+    return out;
+  };
+
+  const areas = cleanTags(raw.areas);
+  if (areas.length === 0) return { ok: false, error: "Elige al menos un área." };
+  const involved = cleanTags(raw.involved);
+
   const cleanList = (value: unknown): string[] =>
     (Array.isArray(value) ? value : [])
       .map((v) => String(v ?? "").trim())
@@ -65,8 +88,10 @@ export function parseExperienceInput(body: unknown): ParseResult {
     value: {
       origin,
       occurredAt: occurredAt.toISOString(),
-      trigger,
+      description,
       emotions,
+      areas,
+      involved,
       thoughts: cleanList(raw.thoughts),
       actions: cleanList(raw.actions),
       reflection,

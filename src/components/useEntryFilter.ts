@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { EMPTY_ENTRY_FILTER, isEntryFilterActive, type EntryFilter, type SortMode } from "@/lib/journal";
-import type { Origin, Valence } from "@/lib/types";
+import type { Origin, TagKind, Valence } from "@/lib/types";
 
 /**
  * Estado de filtros compartido por el listado de entradas, la línea de tiempo
@@ -47,6 +47,18 @@ export function useEntryFilter(initial: EntryFilter = EMPTY_ENTRY_FILTER) {
     });
   }, []);
 
+  const toggleTag = useCallback((kind: TagKind, key: string) => {
+    setManualSort(null);
+    setFilter((prev) => {
+      const field = kind === "AREA" ? "areas" : "involved";
+      const current = prev[field];
+      return {
+        ...prev,
+        [field]: current.includes(key) ? current.filter((k) => k !== key) : [...current, key],
+      };
+    });
+  }, []);
+
   const toggleOrigin = useCallback((origin: Origin) => {
     setManualSort(null);
     setFilter((prev) => ({ ...prev, origin: prev.origin === origin ? null : origin }));
@@ -72,10 +84,11 @@ export function useEntryFilter(initial: EntryFilter = EMPTY_ENTRY_FILTER) {
       toggleEmotion,
       toggleValence,
       toggleOrigin,
+      toggleTag,
       clear,
       setSort: setManualSort,
     }),
-    [filter, sort, activeKeys, toggleEmotion, toggleValence, toggleOrigin, clear],
+    [filter, sort, activeKeys, toggleEmotion, toggleValence, toggleOrigin, toggleTag, clear],
   );
 }
 

@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ChipGrid } from "./ChipGrid";
 import { EmotionChipGrid } from "./EmotionChipGrid";
 import { Modal, ModalHeader } from "./Modal";
 import type { EntryFilterState } from "./useEntryFilter";
 import { GROUP_COLOR } from "@/lib/emotions";
 import { emotionCounts, type SortMode } from "@/lib/journal";
 import { ORIGIN_ICON, ORIGIN_LABEL, ORIGINS } from "@/lib/origin";
+import { TAG_COLOR, TAG_LABEL, tagCounts } from "@/lib/tags";
 import type { Experience, Valence } from "@/lib/types";
 
 const VALENCE_COLOR: Record<Valence, string> = {
@@ -74,6 +76,14 @@ export function EntryFilterControls({
   const [sortOpen, setSortOpen] = useState(false);
 
   const counts = useMemo(() => emotionCounts(source), [source]);
+  const areaItems = useMemo(
+    () => tagCounts(source, "AREA").map((t) => ({ ...t, color: TAG_COLOR.AREA })),
+    [source],
+  );
+  const involvedItems = useMemo(
+    () => tagCounts(source, "INVOLUCRADO").map((t) => ({ ...t, color: TAG_COLOR.INVOLUCRADO })),
+    [source],
+  );
   const valencesPresent = useMemo(() => new Set(counts.map((c) => c.valence)), [counts]);
   const canPickValence = showValences && valencesPresent.size > 1;
 
@@ -175,9 +185,31 @@ export function EntryFilterControls({
           ) : null}
 
           {visibleCounts.length > 0 ? (
-            <section>
+            <section className="mb-4">
               <SectionTitle>Emociones</SectionTitle>
               <EmotionChipGrid entries={visibleCounts} activeKeys={state.activeKeys} onToggle={state.toggleEmotion} />
+            </section>
+          ) : null}
+
+          {areaItems.length > 0 ? (
+            <section className="mb-4">
+              <SectionTitle>{TAG_LABEL.AREA}</SectionTitle>
+              <ChipGrid
+                items={areaItems}
+                activeKeys={state.filter.areas}
+                onToggle={(key) => state.toggleTag("AREA", key)}
+              />
+            </section>
+          ) : null}
+
+          {involvedItems.length > 0 ? (
+            <section>
+              <SectionTitle>{TAG_LABEL.INVOLUCRADO}</SectionTitle>
+              <ChipGrid
+                items={involvedItems}
+                activeKeys={state.filter.involved}
+                onToggle={(key) => state.toggleTag("INVOLUCRADO", key)}
+              />
             </section>
           ) : null}
         </div>

@@ -57,12 +57,17 @@ dejaría los ejemplos congelados en la fecha de compilación.
 
 ```
 User ──< Experience ──< ExperienceEmotion   (name, valence, level 0-10)
+                    ──< ExperienceTag       (kind: AREA | INVOLUCRADO, name)
                     ──< Thought             (pensamientos relacionados)
                     ──< Action              (respuesta)
 ```
 
 Cada `Experience` es una entrada del diario: `origin` (`EXTERNA` | `INTERNA`), `occurredAt`,
-`trigger` (el desencadenante, que hace de título) y `reflection` opcional.
+`description` (que hace de título) y `reflection` opcional.
+
+Áreas e involucrados comparten tabla, discriminados por `kind`. Se comportan igual —lista de
+nombres, catálogo ampliable, filtro de selección múltiple— y separarlos en dos tablas solo
+duplicaría el mismo código dos veces.
 
 Dos detalles del esquema que existen para no romper diarios ya en marcha: `origin` lleva
 `@default("EXTERNA")`, porque las entradas anteriores al campo eran todas situaciones externas; y
@@ -114,6 +119,7 @@ src/lib/
   experience-input.ts          Validación del formulario, compartida por alta y edición
   demo-data.ts                 Las 16 entradas de ejemplo
   origin.ts                    Origen de la emoción: etiquetas, iconos y validación
+  tags.ts                      Áreas e involucrados: catálogos, recuentos y colores
 
 src/components/
   JournalProvider.tsx          Contexto: datos, filtro de fechas, alta de entradas
@@ -131,7 +137,9 @@ src/components/
   ExperienceResults.tsx        Listado + detalle
   EntryFilterControls.tsx      Filtros (origen, signo, emoción) y selector de orden
   useEntryFilter.ts            Estado de filtros y regla de orden automático
-  EmotionChipGrid.tsx          Chips de emoción recortados a 4 filas, sin scroll
+  ChipGrid.tsx                 Rejilla de chips recortada a 4 filas, sin scroll
+  EmotionChipGrid.tsx          ChipGrid con el color del signo de cada emoción
+  TagPicker.tsx                Selección de áreas e involucrados en el formulario
   useWrapClamp.ts              Recorte a N filas con «Ver más» (+ lib/row-clamp.ts)
   Timeline.tsx                 Diagrama tipo cotización con zoom
   GroupBarChart.tsx            Barras de emociones de un grupo

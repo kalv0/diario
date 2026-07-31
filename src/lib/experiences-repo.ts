@@ -7,6 +7,7 @@ import type { Experience, ExperienceInput } from "./types";
 /** Emociones de mayor a menor nivel; pensamientos y respuesta en su orden. */
 const INCLUDE = {
   emotions: { orderBy: { level: "desc" } },
+  tags: { orderBy: { position: "asc" } },
   thoughts: { orderBy: { position: "asc" } },
   actions: { orderBy: { position: "asc" } },
 } as const;
@@ -15,12 +16,26 @@ interface Row {
   id: string;
   origin: string;
   occurredAt: Date;
-  trigger: string;
+  description: string;
   reflection: string | null;
   createdAt: Date;
   emotions: { name: string; valence: string; level: number }[];
+  tags: { kind: string; name: string }[];
   thoughts: { text: string }[];
   actions: { text: string }[];
+}
+
+/** Las filas de etiqueta van todas en la misma tabla; aquí se reparten por tipo. */
+function tagsOf(row: Row, kind: string): string[] {
+  return row.tags.filter((t) => t.kind === kind).map((t) => t.name);
+}
+
+/** Filas de ExperienceTag a partir de las dos listas del formulario. */
+function tagRows(input: ExperienceInput): { kind: string; name: string; position: number }[] {
+  return [
+    ...input.areas.map((name, position) => ({ kind: "AREA", name, position })),
+    ...input.involved.map((name, position) => ({ kind: "INVOLUCRADO", name, position })),
+  ];
 }
 
 function toDto(row: Row): Experience {
@@ -30,8 +45,10 @@ function toDto(row: Row): Experience {
     origin: parseOrigin(row.origin) ?? "EXTERNA",
     occurredAt: row.occurredAt.toISOString(),
     createdAt: row.createdAt.toISOString(),
-    trigger: row.trigger,
+    description: row.description,
     reflection: row.reflection ?? "",
+    areas: tagsOf(row, "AREA"),
+    involved: tagsOf(row, "INVOLUCRADO"),
     emotions: row.emotions.map((e) => ({
       name: e.name,
       valence: e.valence === "POSITIVA" ? "POSITIVA" : "NEGATIVA",
@@ -76,6 +93,7 @@ export async function updateExperience(
 
   const row = await prisma.$transaction(async (tx) => {
     await tx.experienceEmotion.deleteMany({ where: { experienceId: id } });
+    await tx.experienceTag.deleteMany({ where: { experienceId: id } });
     await tx.thought.deleteMany({ where: { experienceId: id } });
     await tx.action.deleteMany({ where: { experienceId: id } });
 
@@ -84,9 +102,10 @@ export async function updateExperience(
       data: {
         origin: input.origin,
         occurredAt: new Date(input.occurredAt),
-        trigger: input.trigger,
+        description: input.description,
         reflection: input.reflection || null,
         emotions: { create: input.emotions },
+        tags: { create: tagRows(input) },
         thoughts: { create: input.thoughts.map((text, position) => ({ text, position })) },
         actions: { create: input.actions.map((text, position) => ({ text, position })) },
       },
@@ -109,9 +128,10 @@ export async function createExperience(userId: string, input: ExperienceInput): 
       userId,
       origin: input.origin,
       occurredAt: new Date(input.occurredAt),
-      trigger: input.trigger,
+      description: input.description,
       reflection: input.reflection || null,
       emotions: { create: input.emotions },
+      tags: { create: tagRows(input) },
       thoughts: { create: input.thoughts.map((text, position) => ({ text, position })) },
       actions: { create: input.actions.map((text, position) => ({ text, position })) },
     },

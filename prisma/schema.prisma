@@ -34,21 +34,38 @@ model Experience {
   origin     String              @default("EXTERNA")
   /// Fecha y hora en que ocurrió (la que rellena el formulario)
   occurredAt DateTime
-  /// Desencadenante: qué ocurrió o qué pensamiento apareció. Es el título de la entrada.
+  /// Descripción: qué pasó. Es el título de la entrada.
   /// La columna sigue llamándose "situation" a propósito: renombrarla obligaría a un
   /// db push con pérdida de datos en diarios que ya estén en marcha.
-  trigger    String              @map("situation")
+  description String             @map("situation")
   /// Reflexión posterior, opcional: se escribe en frío, a veces días después.
   reflection String?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   emotions   ExperienceEmotion[]
+  /// Áreas de vida e involucrados. Ver ExperienceTag.
+  tags       ExperienceTag[]
   /// Pensamientos relacionados: interpretaciones, conclusiones, ideas que aparecieron
   thoughts   Thought[]
   /// Respuesta: qué hice, qué tuve ganas de hacer, qué evité hacer
   actions    Action[]
 
   @@index([userId, occurredAt])
+}
+
+/// Etiquetas libres de una entrada. Dos tipos en la misma tabla porque se
+/// comportan igual —lista de nombres, catálogo ampliable, filtro múltiple— y
+/// separarlas solo duplicaría el mismo código dos veces.
+model ExperienceTag {
+  id           String     @id @default(cuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  /// "AREA" (área de vida) | "INVOLUCRADO" (con quién o con qué)
+  kind         String
+  name         String
+  position     Int        @default(0)
+
+  @@index([experienceId])
 }
 
 model ExperienceEmotion {

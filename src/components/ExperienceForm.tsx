@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { EmotionPicker } from "./EmotionPicker";
 import { useJournal } from "./JournalProvider";
 import { ListEditor } from "./ListEditor";
+import { TagPicker } from "./TagPicker";
 import { Modal, ModalHeader } from "./Modal";
 import { toDateTimeLocalValue } from "@/lib/date-filter";
-import { ORIGIN_HINT, ORIGIN_ICON, ORIGIN_LABEL, ORIGIN_TRIGGER_HINT, ORIGINS } from "@/lib/origin";
+import { ORIGIN_HINT, ORIGIN_ICON, ORIGIN_LABEL, ORIGINS } from "@/lib/origin";
 import type { EmotionEntry, Experience, Origin } from "@/lib/types";
 
 /**
@@ -28,13 +29,15 @@ export function ExperienceForm({
   /** Entrada a editar. Sin ella, el formulario da de alta una nueva. */
   experience?: Experience | null;
 }) {
-  const { addExperience, updateExperience, deleteExperience, mode } = useJournal();
+  const { addExperience, updateExperience, deleteExperience, tagCatalog, mode } = useJournal();
   const editing = experience !== null;
 
   const [origin, setOrigin] = useState<Origin | null>(null);
   const [occurredAt, setOccurredAt] = useState("");
-  const [trigger, setTrigger] = useState("");
+  const [description, setDescription] = useState("");
   const [emotions, setEmotions] = useState<EmotionEntry[]>([]);
+  const [areas, setAreas] = useState<string[]>([]);
+  const [involved, setInvolved] = useState<string[]>([]);
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [actions, setActions] = useState<string[]>([]);
   const [reflection, setReflection] = useState("");
@@ -50,8 +53,10 @@ export function ExperienceForm({
     if (!open) return;
     setOrigin(experience?.origin ?? null);
     setOccurredAt(toDateTimeLocalValue(experience ? new Date(experience.occurredAt) : new Date()));
-    setTrigger(experience?.trigger ?? "");
+    setDescription(experience?.description ?? "");
     setEmotions(experience ? experience.emotions.map((e) => ({ ...e })) : []);
+    setAreas(experience ? [...experience.areas] : []);
+    setInvolved(experience ? [...experience.involved] : []);
     setThoughts(experience ? [...experience.thoughts] : []);
     setActions(experience ? [...experience.actions] : []);
     setReflection(experience?.reflection ?? "");
@@ -66,16 +71,19 @@ export function ExperienceForm({
     if (saving || deleting) return;
 
     if (!origin) return setError("Elige de dónde nace la emoción.");
-    if (!trigger.trim()) return setError("Escribe el desencadenante.");
+    if (!description.trim()) return setError("Escribe qué pasó.");
     if (emotions.length === 0) return setError("Añade al menos una emoción.");
+    if (areas.length === 0) return setError("Elige al menos un área.");
     const date = new Date(occurredAt);
     if (Number.isNaN(date.getTime())) return setError("Revisa la fecha y la hora.");
 
     const input = {
       origin,
       occurredAt: date.toISOString(),
-      trigger: trigger.trim(),
+      description: description.trim(),
       emotions,
+      areas,
+      involved,
       thoughts,
       actions,
       reflection: reflection.trim(),
@@ -117,7 +125,7 @@ export function ExperienceForm({
         <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
           <fieldset className="flex flex-col gap-1.5">
             <legend className="text-xs font-medium tracking-wide text-ink-400 uppercase">Origen</legend>
-            <span className="text-xs text-ink-400">¿De dónde nace la emoción?</span>
+            <span className="text-xs text-ink-400">¿Qué inició esta entrada?</span>
             <div className="mt-1 grid grid-cols-2 gap-2">
               {ORIGINS.map((value) => {
                 const active = origin === value;
@@ -160,21 +168,28 @@ export function ExperienceForm({
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium tracking-wide text-ink-400 uppercase">Desencadenante</span>
-            <span className="-mt-1 text-xs text-ink-400">
-              {origin ? ORIGIN_TRIGGER_HINT[origin] : "Qué ocurrió o qué pensamiento apareció."}
-            </span>
+            <span className="text-xs font-medium tracking-wide text-ink-400 uppercase">Descripción</span>
+            <span className="-mt-1 text-xs text-ink-400">¿Qué pasó?</span>
             <textarea
-              value={trigger}
-              onChange={(event) => setTrigger(event.target.value)}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
               rows={3}
               required
-              placeholder="Describe el desencadenante…"
+              placeholder="Describe qué pasó…"
               className="resize-y rounded-xl border border-ink-700 bg-ink-850 px-3 py-2.5 text-sm leading-relaxed outline-none placeholder:text-ink-600 focus:border-ink-400"
             />
           </label>
 
           <EmotionPicker value={emotions} onChange={setEmotions} />
+
+          <TagPicker kind="AREA" catalog={tagCatalog.AREA} value={areas} onChange={setAreas} required />
+
+          <TagPicker
+            kind="INVOLUCRADO"
+            catalog={tagCatalog.INVOLUCRADO}
+            value={involved}
+            onChange={setInvolved}
+          />
 
           <ListEditor
             label="Pensamientos relacionados"

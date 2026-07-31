@@ -5,7 +5,8 @@ import { DEFAULT_FILTER, resolveRange, type DateFilter, type DateRange } from "@
 import { buildCatalog, type CatalogEntry } from "@/lib/emotions";
 import { demoExperienceFromInput } from "@/lib/demo-data";
 import { earliestDate, filterByRange } from "@/lib/journal";
-import type { Experience, ExperienceInput, Valence } from "@/lib/types";
+import { buildTagCatalog } from "@/lib/tags";
+import type { Experience, ExperienceInput, TagKind, Valence } from "@/lib/types";
 
 export type JournalMode = "api" | "demo";
 
@@ -25,6 +26,8 @@ interface JournalContextValue {
   updateExperience: (id: string, input: ExperienceInput) => Promise<void>;
   deleteExperience: (id: string) => Promise<void>;
   catalog: Record<Valence, CatalogEntry[]>;
+  /** Áreas e involucrados que se ofrecen al escribir: base + lo ya usado. */
+  tagCatalog: Record<TagKind, string[]>;
   /** Fecha del registro más antiguo: tope al retroceder de mes en el calendario. */
   earliest: Date | null;
 }
@@ -136,6 +139,13 @@ export function JournalProvider({
   const range = useMemo(() => resolveRange(dateFilter, new Date(), earliest), [dateFilter, earliest]);
   const filtered = useMemo(() => filterByRange(experiences, range), [experiences, range]);
   const catalog = useMemo(() => buildCatalog(experiences), [experiences]);
+  const tagCatalog = useMemo<Record<TagKind, string[]>>(
+    () => ({
+      AREA: buildTagCatalog(experiences, "AREA"),
+      INVOLUCRADO: buildTagCatalog(experiences, "INVOLUCRADO"),
+    }),
+    [experiences],
+  );
 
   const value = useMemo<JournalContextValue>(
     () => ({
@@ -151,6 +161,7 @@ export function JournalProvider({
       updateExperience,
       deleteExperience,
       catalog,
+      tagCatalog,
       earliest,
     }),
     [
@@ -165,6 +176,7 @@ export function JournalProvider({
       updateExperience,
       deleteExperience,
       catalog,
+      tagCatalog,
       earliest,
     ],
   );

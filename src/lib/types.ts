@@ -5,6 +5,9 @@ export type Valence = "POSITIVA" | "NEGATIVA";
 /** De dónde nace la emoción de una entrada. */
 export type Origin = "EXTERNA" | "INTERNA";
 
+/** Los dos tipos de etiqueta libre de una entrada. */
+export type TagKind = "AREA" | "INVOLUCRADO";
+
 /** Los tres grupos en que se clasifica una entrada. */
 export type GroupType = "positivas" | "negativas" | "ambiguas";
 
@@ -20,9 +23,13 @@ export interface Experience {
   origin: Origin;
   /** ISO 8601. Fecha y hora en que ocurrió. */
   occurredAt: string;
-  /** Desencadenante: qué ocurrió o qué pensamiento apareció. Título de la entrada. */
-  trigger: string;
+  /** Descripción: qué pasó. Título de la entrada. */
+  description: string;
   emotions: EmotionEntry[];
+  /** Áreas de vida. Al menos una en toda entrada nueva o editada. */
+  areas: string[];
+  /** Con quién o con qué está relacionada. Puede ir vacío. */
+  involved: string[];
   /** Pensamientos relacionados. */
   thoughts: string[];
   /** Respuesta: qué hice, qué tuve ganas de hacer, qué evité hacer. */
@@ -36,8 +43,10 @@ export interface Experience {
 export interface ExperienceInput {
   origin: Origin;
   occurredAt: string;
-  trigger: string;
+  description: string;
   emotions: EmotionEntry[];
+  areas: string[];
+  involved: string[];
   thoughts: string[];
   actions: string[];
   reflection: string;

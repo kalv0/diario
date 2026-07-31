@@ -5,8 +5,15 @@ cuando algo se comporte de forma dudosa: si el código no coincide con esto, es 
 
 ## Conceptos
 
-**Entrada.** Un registro emocional con origen, fecha y hora, desencadenante, una o más emociones
-con su nivel, pensamientos relacionados, respuesta y una reflexión posterior opcional.
+**Entrada.** Un registro emocional con origen, fecha y hora, descripción, una o más emociones con
+su nivel, al menos un área de vida, opcionalmente involucrados, pensamientos relacionados,
+respuesta y una reflexión posterior opcional.
+
+**Área e involucrados.** Dos listas de etiquetas libres. Las áreas responden a «¿en qué área de mi
+vida ocurrió?» y salen de un catálogo base —Salud, Relaciones, Desarrollo personal, Finanzas— que
+se puede ampliar escribiendo. Los involucrados responden a «¿con quién o con qué está
+relacionado?» y empiezan vacíos: se construyen a base de usarlos. En las dos, igual que con las
+emociones, lo que se escriba una vez queda disponible para la siguiente.
 
 **Origen.** De dónde nace la emoción. Es lo primero que se pregunta porque cambia cómo se lee
 todo lo demás:
@@ -59,7 +66,7 @@ Dos desplegables uno junto al otro: **«Filtros»** a la izquierda, **«Ordena»
 uno abre un popup al tocarlo; no ocupan sitio en la página hasta que se abren.
 
 **Filtros.** El botón lleva icono de embudo y se resalta cuando hay algún filtro activo. Dentro
-del popup, tres secciones que se combinan con Y:
+del popup, varias secciones que se combinan con Y:
 
 - Un botón de papelera en la cabecera, junto al cierre, aparece **solo cuando hay algo que
   limpiar** y desaparece en cuanto se limpia.
@@ -69,6 +76,9 @@ del popup, tres secciones que se combinan con Y:
 - **Signo**: «Positivas» y «Negativas» son de **selección única**. Marcar uno desmarca el otro, y
   volver a pulsar el que está activo lo quita. Solo aparecen si en pantalla hay emociones de los
   dos signos: en un grupo de un solo signo no habría nada que elegir.
+- **Área** e **Involucrados**: chips con su recuento, de **selección múltiple**. Marcar varias de
+  una misma lista las **suma** (Salud y Trabajo muestra las de cualquiera de las dos); entre
+  listas distintas se **cruzan**. Solo aparecen si hay algo que ofrecer.
 - **Emociones concretas**: chips ordenados por frecuencia, con el recuento al lado, en una
   cuadrícula que ajusta filas, **nunca con scroll**. Se muestran como mucho **4 filas**; si no
   caben todas, la última posición se convierte en un botón **«Ver más»** que despliega el resto
@@ -109,24 +119,28 @@ Sin scroll: ocupa exactamente el alto de la pantalla.
 
 Se abre desde el (+) en cualquier pantalla que lo tenga y pregunta, en este orden:
 
-1. **Origen** — 🌍 situación externa o 🧠 pensamiento interno. Va primero porque cambia cómo se
-   lee todo lo demás, y la pista del desencadenante se adapta a lo elegido («¿Qué ocurrió?» o
-   «¿Qué pensamiento apareció?»).
+1. **Origen** — «¿Qué inició esta entrada?»: 🌍 situación externa o 🧠 pensamiento interno. Va
+   primero porque cambia cómo se lee todo lo demás.
 2. **Día y hora** — precargados con el momento en que se pulsó el (+). No admite futuro.
-3. **Desencadenante** — qué ocurrió o qué pensamiento apareció. Es el título de la entrada.
+3. **Descripción** — «¿Qué pasó?». Es el título de la entrada.
 4. **Emociones** — una o más, cada una con **nivel de 0 a 10**. Se eligen de un catálogo
    separado por signo, con buscador, y se pueden crear nuevas escribiéndolas: se guardan con el
    signo que esté activo en el conmutador. Los chips del catálogo se muestran **sin scroll, como
    mucho 4 filas**; si no caben todos, la última posición es un botón «Ver más» (y «Ver menos»
    para recogerlos). Mientras se escribe una emoción nueva, el chip de crearla va siempre
    primero, visible sin necesidad de desplegar nada.
-5. **Pensamientos relacionados** — interpretaciones, conclusiones, ideas que aparecieron. Lista,
+5. **Área** — «¿En qué área de mi vida ocurrió?». Se pueden marcar **varias** y **al menos una es
+   obligatoria**. Se eligen de un catálogo ampliable, con el mismo recorte a 4 filas sin scroll y
+   el mismo chip de «+ Añadir» que las emociones.
+6. **Involucrados** — «¿Con quién o con qué está relacionado?». Varios, y **opcional**. Mismo
+   selector, pero sin catálogo base.
+7. **Pensamientos relacionados** — interpretaciones, conclusiones, ideas que aparecieron. Lista,
    una tarjeta por pensamiento.
-6. **Respuesta** — qué hice, qué tuve ganas de hacer, qué evité hacer. Lista, una tarjeta por
+8. **Respuesta** — qué hice, qué tuve ganas de hacer, qué evité hacer. Lista, una tarjeta por
    elemento.
-7. **Reflexión posterior** — qué se ve ahora que no se veía en el momento. Texto libre, opcional.
+9. **Reflexión posterior** — qué se ve ahora que no se veía en el momento. Texto libre, opcional.
 
-Origen, desencadenante y al menos una emoción son obligatorios. El servidor revalida todo lo que
+Origen, descripción, al menos una emoción y al menos un área son obligatorios. El servidor revalida todo lo que
 llega.
 
 ## Página de entradas del diario `/entradas`

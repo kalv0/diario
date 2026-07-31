@@ -151,23 +151,48 @@ export interface EntryFilter {
   valence: Valence | null;
   /** Emociones concretas activas. Vacío = todas. */
   emotions: SelectedEmotion[];
+  /** Áreas activas (claves normalizadas). Vacío = todas. */
+  areas: string[];
+  /** Involucrados activos (claves normalizadas). Vacío = todos. */
+  involved: string[];
 }
 
-export const EMPTY_ENTRY_FILTER: EntryFilter = { origin: null, valence: null, emotions: [] };
+export const EMPTY_ENTRY_FILTER: EntryFilter = {
+  origin: null,
+  valence: null,
+  emotions: [],
+  areas: [],
+  involved: [],
+};
 
 export function isEntryFilterActive(filter: EntryFilter): boolean {
-  return filter.origin !== null || filter.valence !== null || filter.emotions.length > 0;
+  return (
+    filter.origin !== null ||
+    filter.valence !== null ||
+    filter.emotions.length > 0 ||
+    filter.areas.length > 0 ||
+    filter.involved.length > 0
+  );
 }
 
+/**
+ * Dentro de una dimensión las opciones suman (marcar Salud y Trabajo muestra
+ * las de cualquiera de las dos); entre dimensiones se cruzan. Es lo que se
+ * espera al marcar varias casillas de una misma lista.
+ */
 export function filterEntries(experiences: Experience[], filter: EntryFilter): Experience[] {
   if (!isEntryFilterActive(filter)) return experiences;
   const wantedEmotions = new Set(filter.emotions.map((e) => e.key));
+  const wantedAreas = new Set(filter.areas);
+  const wantedInvolved = new Set(filter.involved);
 
   return experiences.filter((exp) => {
     const originOk = filter.origin === null || exp.origin === filter.origin;
     const valenceOk = filter.valence === null || exp.emotions.some((e) => e.valence === filter.valence);
     const emotionOk = wantedEmotions.size === 0 || exp.emotions.some((e) => wantedEmotions.has(normalize(e.name)));
-    return originOk && valenceOk && emotionOk;
+    const areaOk = wantedAreas.size === 0 || exp.areas.some((a) => wantedAreas.has(normalize(a)));
+    const involvedOk = wantedInvolved.size === 0 || exp.involved.some((i) => wantedInvolved.has(normalize(i)));
+    return originOk && valenceOk && emotionOk && areaOk && involvedOk;
   });
 }
 

@@ -6,6 +6,7 @@ import { formatDateTime } from "@/lib/date-filter";
 import { GROUP_COLOR, GROUP_SINGULAR } from "@/lib/emotions";
 import { classify } from "@/lib/journal";
 import { ORIGIN_ICON, ORIGIN_LABEL } from "@/lib/origin";
+import { TAG_COLOR, TAG_LABEL } from "@/lib/tags";
 import type { Experience } from "@/lib/types";
 
 /**
@@ -94,8 +95,8 @@ export function ExperienceDetail({
           </span>
         </div>
 
-        <Section title="Desencadenante">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink-100">{experience.trigger}</p>
+        <Section title="Descripción">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink-100">{experience.description}</p>
         </Section>
 
         <Section title="Emociones">
@@ -121,6 +122,18 @@ export function ExperienceDetail({
             })}
           </ul>
         </Section>
+
+        {experience.areas.length > 0 ? (
+          <Section title={TAG_LABEL.AREA}>
+            <TagRow names={experience.areas} color={TAG_COLOR.AREA} />
+          </Section>
+        ) : null}
+
+        {experience.involved.length > 0 ? (
+          <Section title={TAG_LABEL.INVOLUCRADO}>
+            <TagRow names={experience.involved} color={TAG_COLOR.INVOLUCRADO} />
+          </Section>
+        ) : null}
 
         {experience.thoughts.length > 0 ? (
           <Section title="Pensamientos relacionados">
@@ -178,6 +191,22 @@ export function ExperienceDetail({
         </button>
       </div>
     </Modal>
+  );
+}
+
+function TagRow({ names, color }: { names: string[]; color: string }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {names.map((name) => (
+        <span
+          key={name}
+          className="rounded-full px-2.5 py-1 text-xs font-semibold"
+          style={{ backgroundColor: `${color}26`, color }}
+        >
+          {name}
+        </span>
+      ))}
+    </div>
   );
 }
 
