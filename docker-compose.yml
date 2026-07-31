@@ -16,7 +16,7 @@ services:
       # actions (el login) porque Cloudflare reescribe el Host y el origen
       # deja de coincidir.
       ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-}"
-      PORT: "3000"
+      PORT: "1312"
       USERS_FILE: "/app/.users"
     volumes:
       # Aquí vive el SQLite. Es lo único que hay que respaldar.
@@ -29,11 +29,11 @@ services:
     # No se publica ningún puerto en el host: al contenedor solo se llega desde
     # la red `cloudflare`. Descomenta para probar en local sin túnel.
     # ports:
-    #   - "3000:3000"
+    #   - "1312:1312"
     expose:
-      - "3000"
+      - "1312"
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/login"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:1312/login"]
       interval: 30s
       timeout: 5s
       retries: 5

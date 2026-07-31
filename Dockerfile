@@ -32,7 +32,7 @@ RUN apk add --no-cache openssl su-exec && \
 
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    PORT=3000 \
+    PORT=1312 \
     DATABASE_URL="file:/data/diario.db"
 
 COPY --from=builder /app/node_modules ./node_modules
@@ -47,7 +47,7 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 VOLUME ["/data"]
-EXPOSE 3000
+EXPOSE 1312
 
 # El entrypoint arranca como root solo para dar permisos al volumen y baja a
 # "diario" antes de ejecutar la aplicación.

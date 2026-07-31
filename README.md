@@ -42,7 +42,7 @@ docker compose up -d --build
 ```
 
 El contenedor se engancha a la red Docker externa `cloudflare`, donde ya corre el túnel del
-servidor; la exposición pública se configura ahí apuntando a `diario:3000`.
+servidor; la exposición pública se configura ahí apuntando a `diario:1312`.
 
 Las cuentas se sincronizan solas en cada arranque a partir de `.users`. Ni `.env` ni `.users` se
 suben al repositorio: contienen secretos y viven solo en el servidor.

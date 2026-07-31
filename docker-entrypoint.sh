@@ -39,5 +39,5 @@ fi
 echo "→ Sincronizando cuentas desde $USERS_FILE"
 USERS_FILE="$USERS_FILE" su-exec diario:nodejs node scripts/sync-users.mjs
 
-echo "→ Arrancando el diario en el puerto ${PORT:-3000}"
+echo "→ Arrancando el diario en el puerto ${PORT:-1312}"
 exec su-exec diario:nodejs "$@"

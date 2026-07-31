@@ -5,7 +5,7 @@ Un solo contenedor, enganchado a la red Docker externa **`cloudflare`**, donde y
 desde esa red. No hay que abrir nada en el router ni en el cortafuegos.
 
 ```
-internet ──HTTPS──> Cloudflare ──túnel saliente──> cloudflared ──http://diario:3000──> diario
+internet ──HTTPS──> Cloudflare ──túnel saliente──> cloudflared ──http://diario:1312──> diario
                                                    └──────── red `cloudflare` ────────┘
 ```
 
@@ -84,7 +84,7 @@ preferible a quedarse en pie con un diario al que nadie puede entrar.
 En el *public hostname* del túnel de Cloudflare, apunta el dominio a:
 
 ```
-HTTP → diario:3000
+HTTP → diario:1312
 ```
 
 `diario` es el `container_name` del servicio, y Docker lo resuelve por DNS dentro de la red
@@ -172,7 +172,7 @@ docker compose logs -f app
 ### Probar en local sin túnel
 
 Descomenta el bloque `ports` del servicio `app` en `docker-compose.yml` y entra en
-`http://localhost:3000`. Ten en cuenta que la cookie de sesión es `secure` en producción, así que
+`http://localhost:1312`. Ten en cuenta que la cookie de sesión es `secure` en producción, así que
 por HTTP plano no se guardará: para pruebas de login usa `npm run dev`.
 
 ## Resolución de problemas
@@ -184,5 +184,5 @@ por HTTP plano no se guardará: para pruebas de login usa `npm run dev`.
 | `network cloudflare declared as external, but could not be found` | La red no existe todavía: `docker network create cloudflare` |
 | El contenedor sale diciendo que `.users` es un directorio | No existía en el host y Docker lo creó como carpeta al montarlo. `docker compose down && rmdir .users && cp .users.example .users` |
 | `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` | El `.sh` se ha subido con finales de línea CRLF. Lo evita `.gitattributes`; si ya pasó, `dos2unix docker-entrypoint.sh` |
-| Error 502 en el dominio | El *public hostname* del túnel no apunta a `diario:3000` |
+| Error 502 en el dominio | El *public hostname* del túnel no apunta a `diario:1312` |
 | La sesión se cierra sola | Cambió `SESSION_SECRET`: invalida todas las cookies emitidas |
