@@ -5,15 +5,16 @@ name: diario
 services:
   app:
     build: .
-    image: diario-de-situaciones:latest
+    image: diario:latest
     container_name: diario
     restart: unless-stopped
     environment:
       DATABASE_URL: "file:/data/diario.db"
       SESSION_SECRET: "${SESSION_SECRET:?Falta SESSION_SECRET en el archivo .env}"
       SESSION_DAYS: "${SESSION_DAYS:-30}"
-      # Dominio público del túnel: sin él Next rechaza las server actions
-      # (el login) porque el Host no coincide con el origen.
+      # Dominio público desde el que se sirve: sin él Next rechaza las server
+      # actions (el login) porque Cloudflare reescribe el Host y el origen
+      # deja de coincidir.
       ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-}"
       PORT: "3000"
       USERS_FILE: "/app/.users"
@@ -24,11 +25,13 @@ services:
       # se edita este fichero en el servidor y se reinicia el contenedor.
       - ./.users:/app/.users:ro
     networks:
-      - diario
-    # La app no publica puertos al host: solo la alcanza cloudflared por la red
-    # interna. Descomenta si quieres probarla en local sin el túnel.
+      - cloudflare
+    # No se publica ningún puerto en el host: al contenedor solo se llega desde
+    # la red `cloudflare`. Descomenta para probar en local sin túnel.
     # ports:
     #   - "3000:3000"
+    expose:
+      - "3000"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/login"]
       interval: 30s
@@ -36,21 +39,11 @@ services:
       retries: 5
       start_period: 20s
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: diario-tunnel
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: "${TUNNEL_TOKEN:?Falta TUNNEL_TOKEN en el archivo .env}"
-    depends_on:
-      app:
-        condition: service_started
-    networks:
-      - diario
-
 volumes:
   diario-data:
 
 networks:
-  diario:
+  # Red compartida donde ya corre el túnel de Cloudflare. La gestiona el
+  # servidor, no este compose: aquí solo nos enganchamos a ella.
+  cloudflare:
+    external: true

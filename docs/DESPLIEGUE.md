@@ -1,30 +1,18 @@
 # Despliegue
 
-Dos contenedores: la aplicación y `cloudflared`. La aplicación **no publica ningún puerto en el
-host**; solo la alcanza el túnel por la red interna de Docker. No hay que abrir nada en el
-router ni en el cortafuegos.
+Un solo contenedor, enganchado a la red Docker externa **`cloudflare`**, donde ya corre el
+`cloudflared` del servidor. El diario **no publica ningún puerto en el host**: solo se llega a él
+desde esa red. No hay que abrir nada en el router ni en el cortafuegos.
 
 ```
-internet ──HTTPS──> Cloudflare ──túnel saliente──> cloudflared ──http://app:3000──> diario
+internet ──HTTPS──> Cloudflare ──túnel saliente──> cloudflared ──http://diario:3000──> diario
+                                                   └──────── red `cloudflare` ────────┘
 ```
 
-## 1. Crear el túnel en Cloudflare
+El túnel no es cosa de este compose: se gestiona aparte, junto al resto de servicios que ya
+expone el servidor.
 
-En el panel de Cloudflare Zero Trust:
-
-1. **Networks → Tunnels → Create a tunnel**, tipo **Cloudflared**. Ponle nombre, por ejemplo
-   `diario`.
-2. Copia el **token** que aparece en el comando de instalación (la cadena larga después de
-   `--token`). Es lo que irá en `TUNNEL_TOKEN`.
-3. En **Public Hostnames**, añade uno:
-   - **Subdomain / Domain**: el que quieras, por ejemplo `diario.tudominio.com`.
-   - **Service**: `HTTP` → `app:3000`.
-
-   `app` es el nombre del servicio en `docker-compose.yml`; Docker lo resuelve por DNS dentro de
-   la red `diario`. No pongas `localhost`: dentro del contenedor de `cloudflared`, `localhost` es
-   el propio `cloudflared`.
-
-## 2. Configurar el servidor
+## 1. Configurar el servidor
 
 ```bash
 git clone https://github.com/kalv0/diario.git
@@ -39,7 +27,6 @@ Edita `.env`:
 SESSION_SECRET="<pega aquí una cadena larga y aleatoria>"
 SESSION_DAYS="30"
 ALLOWED_ORIGINS="diario.tudominio.com"
-TUNNEL_TOKEN="<el token del paso 1>"
 ```
 
 Genera el secreto con:
@@ -64,7 +51,17 @@ alvaro:otra-contraseña-larga:Álvaro
 Ninguno de los dos ficheros se sube al repositorio: los dos están en `.gitignore` porque
 contienen secretos. Viven solo en el servidor.
 
-## 3. Arrancar
+## 2. Arrancar
+
+La red `cloudflare` tiene que existir antes; normalmente ya la ha creado el compose del túnel.
+Para comprobarlo, y crearla si hiciera falta:
+
+```bash
+docker network ls | grep cloudflare
+docker network create cloudflare   # solo si no aparece
+```
+
+Y ya:
 
 ```bash
 docker compose up -d --build
@@ -81,6 +78,20 @@ En cada arranque el entrypoint, por este orden:
 
 Si falta `.users` o tiene errores de formato, el contenedor **no arranca** y dice por qué: es
 preferible a quedarse en pie con un diario al que nadie puede entrar.
+
+## 3. Exponerlo por el túnel
+
+En el *public hostname* del túnel de Cloudflare, apunta el dominio a:
+
+```
+HTTP → diario:3000
+```
+
+`diario` es el `container_name` del servicio, y Docker lo resuelve por DNS dentro de la red
+`cloudflare`. **No pongas `localhost`**: dentro del contenedor de `cloudflared`, `localhost` es el
+propio `cloudflared`, no el diario.
+
+El dominio que pongas ahí tiene que coincidir con `ALLOWED_ORIGINS` del `.env`.
 
 Ya se puede entrar en `https://diario.tudominio.com`.
 
@@ -156,7 +167,6 @@ se detiene y avisa en lugar de ejecutarlo: revisa el log antes de forzar nada.
 
 ```bash
 docker compose logs -f app
-docker compose logs -f cloudflared
 ```
 
 ### Probar en local sin túnel
@@ -171,6 +181,8 @@ por HTTP plano no se guardará: para pruebas de login usa `npm run dev`.
 | --- | --- |
 | El login no responde y el log muestra un error de origen | Falta `ALLOWED_ORIGINS` con el dominio del túnel |
 | El contenedor sale con «SESSION_SECRET no está definida» | El `.env` no está o el secreto tiene menos de 32 caracteres |
+| `network cloudflare declared as external, but could not be found` | La red no existe todavía: `docker network create cloudflare` |
+| El contenedor sale diciendo que `.users` es un directorio | No existía en el host y Docker lo creó como carpeta al montarlo. `docker compose down && rmdir .users && cp .users.example .users` |
 | `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` | El `.sh` se ha subido con finales de línea CRLF. Lo evita `.gitattributes`; si ya pasó, `dos2unix docker-entrypoint.sh` |
-| Error 502 en el dominio | El *public hostname* del túnel no apunta a `app:3000` |
+| Error 502 en el dominio | El *public hostname* del túnel no apunta a `diario:3000` |
 | La sesión se cierra sola | Cambió `SESSION_SECRET`: invalida todas las cookies emitidas |

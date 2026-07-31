@@ -36,10 +36,13 @@ Y entra en <http://localhost:3000>. La demo pública, sin cuenta, está en `/dem
 ## Despliegue
 
 ```bash
-cp .env.example .env       # SESSION_SECRET, ALLOWED_ORIGINS y TUNNEL_TOKEN
+cp .env.example .env       # SESSION_SECRET y ALLOWED_ORIGINS
 cp .users.example .users   # las cuentas, una por línea
 docker compose up -d --build
 ```
+
+El contenedor se engancha a la red Docker externa `cloudflare`, donde ya corre el túnel del
+servidor; la exposición pública se configura ahí apuntando a `diario:3000`.
 
 Las cuentas se sincronizan solas en cada arranque a partir de `.users`. Ni `.env` ni `.users` se
 suben al repositorio: contienen secretos y viven solo en el servidor.
