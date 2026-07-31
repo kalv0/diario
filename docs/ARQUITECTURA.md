@@ -97,7 +97,9 @@ el índice arrastra el código de JWE, que usa `CompressionStream` y no existe e
 ```
 data/emotion-catalog.json      Catálogo base de emociones por signo
 prisma/schema.prisma           Esquema de la base de datos
-scripts/                       Alta y listado de usuarios (JS plano, sin build)
+scripts/                       Administración de cuentas (JS plano, sin build):
+                               sync-users (desde .users), list-users, delete-user,
+                               create-user (alta suelta) y build-check
 
 src/lib/
   types.ts                     Tipos compartidos

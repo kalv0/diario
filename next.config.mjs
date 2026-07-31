@@ -11,6 +11,11 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
+  // No usamos `next/image` en ninguna parte y la única imagen del proyecto es
+  // un SVG. Apagar el optimizador deja fuera el endpoint /_next/image y, con
+  // él, `sharp`, que arrastra avisos de seguridad heredados de libvips sin
+  // versión corregida disponible todavía.
+  images: { unoptimized: true },
   experimental: {
     // Cloudflare Tunnel reescribe la cabecera Host: sin declarar el dominio
     // público, Next rechaza las server actions (el login) por origen inválido.

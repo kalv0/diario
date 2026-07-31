@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 /**
- * Alta de usuarios del diario. No hay registro público: las cuentas se crean
- * siempre desde aquí (es lo que el popup de la demo llama "el administrador").
+ * Alta suelta de una cuenta, sin pasar por `.users`.
+ *
+ * La vía normal es declarar las cuentas en `.users` y dejar que el contenedor
+ * las sincronice al arrancar (ver scripts/sync-users.mjs). Esto es la salida de
+ * emergencia: recuperar el acceso sin reiniciar, o probar algo en local.
  *
  *   npm run user:create -- <usuario> <contraseña> ["Nombre visible"]
  *
- * Dentro del contenedor:
- *   docker compose exec app node scripts/create-user.mjs raul micontraseña "Raúl"
+ * Ojo: lo que se cree aquí y no esté en `.users` saldrá avisado como sobrante
+ * en el siguiente arranque. Si la cuenta es para quedarse, ponla en el fichero.
  *
  * Si el usuario ya existe, se le actualiza la contraseña.
  */

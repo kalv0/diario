@@ -1,7 +1,7 @@
-// Diario de situaciones — esquema de datos
+// Diario de emociones — esquema de datos
 //
 // Decisión de diseño: las emociones se guardan desnormalizadas dentro de cada
-// experiencia (nombre + valencia). El catálogo base vive en data/emotion-catalog.json
+// entrada (nombre + valencia). El catálogo base vive en data/emotion-catalog.json
 // y el "catálogo del usuario" se calcula como la unión del catálogo base con las
 // emociones personalizadas que ya ha usado. Así no hace falta tabla de emociones
 // ni proceso de seed, y renombrar/añadir emociones no rompe datos históricos.

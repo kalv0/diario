@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Diario de emociones",
   description:
-    "Registro personal de situaciones, emociones, pensamientos y acciones. Vista de burbujas, línea de tiempo y búsqueda por emoción.",
+    "Diario personal de emociones: de dónde nace cada una, qué la desencadenó, qué pensaste y cómo respondiste. Vista de burbujas, línea de tiempo y filtros por emoción.",
   robots: { index: false, follow: false },
 };
 

@@ -9,13 +9,13 @@ probable es que esté explicado aquí.
 | --- | --- | --- |
 | Stack | Next.js 15 + SQLite | Un solo contenedor, datos en un fichero dentro de un volumen |
 | Emociones | Catálogo fijo **+ personalizadas** | `data/emotion-catalog.json` como base; el usuario puede crear las suyas indicando el signo |
-| Cuentas | Multiusuario con diario privado | Cada experiencia cuelga de un `userId`; las altas se hacen por script, no hay registro público |
-| Burbuja de las ambiguas | **Par dominante** | Una burbuja por situación: la emoción positiva de mayor nivel + la negativa de mayor nivel |
+| Cuentas | Multiusuario con diario privado | Cada entrada cuelga de un `userId`; las altas se declaran en `.users`, no hay registro público |
+| Burbuja de las ambiguas | **Par dominante** | Una burbuja por entrada: la emoción positiva de mayor nivel + la negativa de mayor nivel |
 
 Sobre el par dominante: la alternativa era generar una burbuja por cada combinación
 positiva × negativa. Se descartó porque con dos emociones positivas y una negativa salían dos
-burbujas para una sola situación, y entonces la suma de las burbujas ya no cuadraba con el
-recuento de «N situaciones ambiguas» que aparece al lado. Con el par dominante, cuadra siempre.
+burbujas para una sola entrada, y entonces la suma de las burbujas ya no cuadraba con el
+recuento de «N entradas ambiguas» que aparece al lado. Con el par dominante, cuadra siempre.
 
 ## El giro a diario de emociones
 
@@ -42,7 +42,7 @@ Dos decisiones de esquema para no romper diarios que ya estuvieran en marcha:
 
 ### Todo el filtrado ocurre en el cliente
 
-El servidor entrega las experiencias del usuario una sola vez. Filtrar por fecha, por emoción,
+El servidor entrega las entradas del usuario una sola vez. Filtrar por fecha, por emoción,
 reordenar o cambiar de pantalla no vuelve a llamar al servidor. Un diario personal no pasa de
 unos miles de registros; a cambio, la interfaz responde al instante. Si algún día un diario
 creciera lo bastante como para que esto molestara, el punto donde se cambia es
@@ -63,10 +63,16 @@ en sus registros. Así no hay proceso de *seed* que mantener, ampliar el catálo
 datos históricos, y una emoción escrita a mano funciona igual que una del catálogo. La
 comparación se hace sin acentos ni mayúsculas para que «Ansiedad» y «ansiedad» no se dupliquen.
 
-### Las cuentas se crean por línea de comandos
+### Las cuentas se declaran en un fichero, no se crean a mano
 
-Es lo que hace coherente el aviso de la demo. `scripts/create-user.mjs` da de alta y, si el
-usuario ya existe, le cambia la contraseña: sirve también para recuperar accesos perdidos.
+`.users` en el servidor es la única fuente: el contenedor lo sincroniza en cada arranque, así que
+dar de alta a alguien o cambiar una contraseña es editar un fichero y reiniciar. Es lo que hace
+coherente el aviso de la demo, y evita que el estado real dependa de qué comandos se ejecutaron
+en qué orden.
+
+Quitar a alguien del fichero **no** lo borra, solo se avisa por el log: borrar una cuenta se
+lleva por delante todas sus entradas, y eso no puede ser un efecto secundario de reiniciar un
+contenedor. Para eso está `scripts/delete-user.mjs --confirmar`.
 
 ### La demo comparte el código con el diario real
 
@@ -83,7 +89,7 @@ perder datos. Si el esquema empezara a evolucionar con frecuencia, merecería la
 
 ### Zoom mínimo de la línea de tiempo
 
-Cuando caben pocos días y alguno acumula muchas situaciones, el ancho que llenaría la pantalla
+Cuando caben pocos días y alguno acumula muchas entradas, el ancho que llenaría la pantalla
 haría que las columnas se salieran por arriba. En ese caso mínimo y máximo coinciden y la línea
 se queda corta: es la condición que se pidió y está garantizada por la propia fórmula, no por un
 recorte visual. La aritmética está en [ARQUITECTURA.md](ARQUITECTURA.md).
@@ -93,8 +99,8 @@ recorte visual. La aritmética está en [ARQUITECTURA.md](ARQUITECTURA.md).
 Cosas que no se han hecho porque no estaban en el encargo, ordenadas por lo probable que es que
 hagan falta:
 
-- **Editar y borrar experiencias.** Ahora mismo solo se crean y se consultan.
-- **Cambiar la contraseña desde la web.** Se hace por línea de comandos.
+- **Editar y borrar entradas.** Ahora mismo solo se crean y se consultan.
+- **Cambiar la contraseña desde la web.** Se hace editando `.users` en el servidor.
 - **Limitar los intentos de login.** Detrás de un túnel privado el riesgo es bajo, pero un
   contador por IP sería barato de añadir en la server action.
 - **Exportar el diario** a JSON o CSV.
