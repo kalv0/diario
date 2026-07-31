@@ -22,6 +22,8 @@ data/*.db
 .env
 .env.local
 .env.*.local
+# Contraseñas en claro: se administra en el servidor, nunca en el repositorio.
+.users
 cloudflared/*.json
 cloudflared/cert.pem
 

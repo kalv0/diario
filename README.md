@@ -15,14 +15,16 @@ movimiento cuyo tamaño depende de cuántas veces aparecen.
 
 ```bash
 npm install
-cp .env.example .env      # y edita SESSION_SECRET
+cp .env.example .env        # y edita SESSION_SECRET
+cp .users.example .users    # y define ahí las cuentas
 npm run dev
 ```
 
-La primera vez, `npm run dev` crea el SQLite y sincroniza las tablas. Después crea tu cuenta:
+La primera vez, `npm run dev` crea el SQLite y sincroniza las tablas. Después da de alta las
+cuentas definidas en `.users`:
 
 ```bash
-npm run user:create -- raul micontraseña "Raúl"
+npm run users:sync
 ```
 
 Y entra en <http://localhost:3000>. La demo pública, sin cuenta, está en `/demo`.
@@ -35,9 +37,12 @@ Y entra en <http://localhost:3000>. La demo pública, sin cuenta, está en `/dem
 
 ```bash
 cp .env.example .env       # SESSION_SECRET, ALLOWED_ORIGINS y TUNNEL_TOKEN
+cp .users.example .users   # las cuentas, una por línea
 docker compose up -d --build
-docker compose exec app node scripts/create-user.mjs raul micontraseña "Raúl"
 ```
+
+Las cuentas se sincronizan solas en cada arranque a partir de `.users`. Ni `.env` ni `.users` se
+suben al repositorio: contienen secretos y viven solo en el servidor.
 
 El paso a paso completo del túnel de Cloudflare está en
 [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md).
@@ -61,12 +66,21 @@ El paso a paso completo del túnel de Cloudflare está en
 | `npm run build:check` | Compila en `.next-check` para verificar sin romper el `npm run dev` en marcha |
 | `npm start` | Sirve la compilación |
 | `npm run typecheck` | TypeScript sin emitir |
-| `npm run user:create -- <usuario> <contraseña> ["Nombre"]` | Alta o cambio de contraseña |
+| `npm run users:sync` | Aplica las cuentas definidas en `.users` |
 | `npm run user:list` | Cuentas existentes y cuántos registros tiene cada una |
+| `npm run user:delete -- <usuario> [--confirmar]` | Borra una cuenta y todas sus entradas |
+| `npm run user:create -- <usuario> <contraseña> ["Nombre"]` | Alta suelta, sin pasar por `.users` |
 | `npm run db:push` | Aplica el esquema de Prisma al SQLite |
 
 ## Cuentas
 
-No hay registro público, es deliberado: las cuentas se crean con `user:create`. La demo
-enseña un CTA discreto («Obtener cuenta») que abre un aviso indicando que hay que pedirla
+No hay registro público, es deliberado. Las cuentas se administran desde el fichero **`.users`**
+del servidor —una por línea, `usuario:contraseña[:Nombre visible]`— y se sincronizan en cada
+arranque del contenedor. Ver [.users.example](.users.example) para el formato y
+[docs/DESPLIEGUE.md](docs/DESPLIEGUE.md) para el día a día.
+
+Quitar a alguien de `.users` **no borra su diario**: solo se avisa. Borrarlo de verdad es un paso
+aparte y con confirmación, porque se lleva por delante todas sus entradas.
+
+La demo enseña un CTA discreto («Obtener cuenta») que abre un aviso indicando que hay que pedirla
 por correo a **raul@calvo.cc**.

@@ -6,6 +6,8 @@ out
 .gitignore
 .env
 .env.local
+# Se monta como volumen en tiempo de ejecución; nunca dentro de la imagen.
+.users
 *.db
 *.sqlite
 prisma/dev.db*

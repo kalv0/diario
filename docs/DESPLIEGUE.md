@@ -27,9 +27,10 @@ En el panel de Cloudflare Zero Trust:
 ## 2. Configurar el servidor
 
 ```bash
-git clone <este-repo> diario_de_situaciones
-cd diario_de_situaciones
+git clone https://github.com/kalv0/diario.git
+cd diario
 cp .env.example .env
+cp .users.example .users
 ```
 
 Edita `.env`:
@@ -53,6 +54,16 @@ no hace nada.
 
 `DATABASE_URL` no se toca: dentro del contenedor siempre es `file:/data/diario.db`.
 
+Y edita `.users`, que es de donde salen las cuentas:
+
+```dotenv
+raul:una-contraseña-larga:Raúl
+alvaro:otra-contraseña-larga:Álvaro
+```
+
+Ninguno de los dos ficheros se sube al repositorio: los dos están en `.gitignore` porque
+contienen secretos. Viven solo en el servidor.
+
 ## 3. Arrancar
 
 ```bash
@@ -60,23 +71,53 @@ docker compose up -d --build
 docker compose logs -f app
 ```
 
-En el arranque, el entrypoint comprueba que `SESSION_SECRET` es suficientemente largo, da
-permisos al volumen y ejecuta `prisma db push` para crear o actualizar las tablas. Sobre una base
-de datos que ya coincide no hace nada.
+En cada arranque el entrypoint, por este orden:
 
-## 4. Crear las cuentas
+1. Comprueba que `SESSION_SECRET` existe y tiene al menos 32 caracteres.
+2. Da permisos del volumen al usuario sin privilegios del contenedor.
+3. Ejecuta `prisma db push` para crear o actualizar las tablas. Sobre un esquema que ya coincide
+   no hace nada.
+4. Sincroniza las cuentas desde `.users`.
 
-No hay registro público. Cada cuenta se da de alta a mano:
-
-```bash
-docker compose exec app node scripts/create-user.mjs raul micontraseña "Raúl"
-docker compose exec app node scripts/list-users.mjs
-```
-
-Volver a ejecutarlo con un usuario existente **le cambia la contraseña**, que es la forma de
-recuperar el acceso si alguien la pierde.
+Si falta `.users` o tiene errores de formato, el contenedor **no arranca** y dice por qué: es
+preferible a quedarse en pie con un diario al que nadie puede entrar.
 
 Ya se puede entrar en `https://diario.tudominio.com`.
+
+## 4. Administrar las cuentas
+
+No hay registro público. Las cuentas se administran **solo** desde el fichero `.users` del
+servidor. Para dar de alta a alguien, cambiar una contraseña o corregir un nombre: se edita el
+fichero y se reinicia.
+
+```bash
+nano .users
+docker compose restart app
+docker compose logs app | tail -20     # confirma qué hizo con cada cuenta
+```
+
+Qué hace la sincronización con lo que encuentra:
+
+| Situación | Qué pasa |
+| --- | --- |
+| Usuario en `.users` que no existe | Se crea |
+| Contraseña o nombre distintos | Se actualizan |
+| Usuario en la base de datos que ya no está en `.users` | **Se avisa, pero no se borra** |
+
+Lo último es deliberado: borrar una cuenta se lleva por delante todas sus entradas, y eso no
+puede ser un efecto secundario de reiniciar un contenedor. Para borrarla de verdad hay un paso
+explícito, con confirmación:
+
+```bash
+docker compose exec app node scripts/delete-user.mjs alvaro              # dice qué se borraría
+docker compose exec app node scripts/delete-user.mjs alvaro --confirmar  # lo borra
+```
+
+Y para ver el estado:
+
+```bash
+docker compose exec app node scripts/list-users.mjs
+```
 
 ---
 

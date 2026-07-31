@@ -1,3 +1,7 @@
+# Nombre fijo del proyecto: si no, Docker lo saca del nombre del directorio y
+# los volúmenes cambian de nombre según dónde se haya clonado el repo.
+name: diario
+
 services:
   app:
     build: .
@@ -12,9 +16,13 @@ services:
       # (el login) porque el Host no coincide con el origen.
       ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-}"
       PORT: "3000"
+      USERS_FILE: "/app/.users"
     volumes:
       # Aquí vive el SQLite. Es lo único que hay que respaldar.
       - diario-data:/data
+      # Cuentas del diario. Se leen en cada arranque: para dar de alta a alguien,
+      # se edita este fichero en el servidor y se reinicia el contenedor.
+      - ./.users:/app/.users:ro
     networks:
       - diario
     # La app no publica puertos al host: solo la alcanza cloudflared por la red

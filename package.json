@@ -9,8 +9,10 @@
     "build:check": "node scripts/build-check.mjs",
     "start": "next start",
     "db:push": "prisma db push",
+    "users:sync": "node scripts/sync-users.mjs",
     "user:create": "node scripts/create-user.mjs",
     "user:list": "node scripts/list-users.mjs",
+    "user:delete": "node scripts/delete-user.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -15,7 +15,7 @@ npm run dev          # servidor de desarrollo (crea el SQLite si no existe)
 npm run build:check  # compila en .next-check para verificar; NO toca el dev
 npm run build        # compilación de producción real, escribe en .next
 npm run typecheck    # TypeScript sin emitir
-npm run user:create -- <usuario> <contraseña> ["Nombre"]
+npm run users:sync   # aplica las cuentas de .users (el contenedor lo hace al arrancar)
 ```
 
 **Con `npm run dev` en marcha, verifica siempre con `build:check`, nunca con `build`.** Un
@@ -69,6 +69,9 @@ interfaz.
   tuvo la primera versión de `EmotionChipGrid`.
 - **Los nombres de emoción se comparan con `normalize()`**, sin acentos ni mayúsculas.
 - **`docker-entrypoint.sh` necesita finales de línea LF.** Lo fuerza `.gitattributes`.
+- **Las cuentas se administran en `.users`** (gitignored, con `.users.example` de plantilla),
+  que `scripts/sync-users.mjs` aplica en cada arranque del contenedor. Quitar a alguien del
+  fichero **no** lo borra: eso se lleva sus entradas por delante y necesita paso explícito.
 - Colores por grupo en `GROUP_COLOR` (`src/lib/emotions.ts`); no repartir literales de color por
   los componentes.
 

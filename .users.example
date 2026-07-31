@@ -1,0 +1,27 @@
+# Cuentas del diario. Copia este fichero a `.users` y edítalo ahí.
+#
+# `.users` NO se sube al repositorio (está en .gitignore): contiene contraseñas
+# en claro. Es el único sitio desde el que se administran las cuentas.
+#
+# Formato, una por línea:
+#   usuario:contraseña
+#   usuario:contraseña:Nombre visible
+#
+# Reglas:
+#   - El usuario admite letras, números, punto, guion y guion bajo. Se guarda en
+#     minúsculas.
+#   - La contraseña necesita 8 caracteres como mínimo y no puede llevar ":".
+#   - Las líneas vacías y las que empiezan por # se ignoran.
+#
+# Al arrancar el contenedor se sincroniza automáticamente:
+#   - usuario nuevo            -> se crea
+#   - contraseña o nombre distintos -> se actualizan
+#   - usuario que quitas de aquí    -> se avisa, pero NO se borra, porque se
+#     llevaría por delante todas sus entradas. Para borrarlo:
+#         docker compose exec app node scripts/delete-user.mjs <usuario> --confirmar
+#
+# Genera contraseñas decentes con:
+#   node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
+
+raul:CAMBIA-ESTA-CONTRASEÑA:Raúl
+alvaro:CAMBIA-ESTA-CONTRASEÑA:Álvaro
