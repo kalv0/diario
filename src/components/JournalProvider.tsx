@@ -82,12 +82,15 @@ export function JournalProvider({
     [mode],
   );
 
+  // `earliest` sale de las entradas sin filtrar, así que puede alimentar al
+  // rango sin ciclo: el filtro de fechas depende de él, no al revés.
+  const earliest = useMemo(() => earliestDate(experiences), [experiences]);
+
   // El rango se recalcula en cada render para que "hoy" siga siendo hoy aunque
   // la pestaña lleve horas abierta.
-  const range = useMemo(() => resolveRange(dateFilter), [dateFilter]);
+  const range = useMemo(() => resolveRange(dateFilter, new Date(), earliest), [dateFilter, earliest]);
   const filtered = useMemo(() => filterByRange(experiences, range), [experiences, range]);
   const catalog = useMemo(() => buildCatalog(experiences), [experiences]);
-  const earliest = useMemo(() => earliestDate(experiences), [experiences]);
 
   const value = useMemo<JournalContextValue>(
     () => ({

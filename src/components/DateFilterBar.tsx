@@ -6,7 +6,7 @@ import { Modal, ModalHeader } from "./Modal";
 import { MonthCalendar, type DaySelection } from "./MonthCalendar";
 import { calendarInitialMonth, filterLabel, PRESET_LABEL, type DatePreset } from "@/lib/date-filter";
 
-const PRESETS: DatePreset[] = ["hoy", "7d", "30d"];
+const PRESETS: DatePreset[] = ["hoy", "7d", "30d", "siempre"];
 
 /**
  * Selector de rango de fechas de la cabecera. Es el único filtro global:
@@ -54,7 +54,7 @@ export function DateFilterBar() {
         <ModalHeader id="filtro-fechas" title="Rango de fechas" onClose={() => setOpen(false)} />
 
         <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          <div className="mb-4 grid grid-cols-3 gap-2">
+          <div className="mb-4 grid grid-cols-4 gap-1.5">
             {PRESETS.map((preset) => {
               const active = dateFilter.kind === "preset" && dateFilter.preset === preset;
               return (
@@ -63,7 +63,7 @@ export function DateFilterBar() {
                   type="button"
                   onClick={() => applyPreset(preset)}
                   className={[
-                    "rounded-xl border px-3 py-2.5 text-sm font-medium transition",
+                    "rounded-xl border px-1 py-2.5 text-center text-xs font-medium whitespace-nowrap transition",
                     active
                       ? "border-ink-100 bg-ink-100 text-ink-950"
                       : "border-ink-700 bg-ink-850 text-ink-300 hover:border-ink-600",

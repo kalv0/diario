@@ -37,8 +37,10 @@ el listado cuando se ordena «por mayor intensidad».
 Es el único filtro global: afecta a las burbujas, a los recuentos, al listado, a la línea de
 tiempo y a las páginas de grupo.
 
-- Opciones: **Hoy**, **7 días**, **30 días** y **fecha personalizada**.
+- Opciones: **Hoy**, **7 días**, **30 días**, **Siempre** y **fecha personalizada**.
 - Por defecto abre en **30 días** (hoy y los 29 anteriores). «7 días» es hoy y los 6 anteriores.
+- **Siempre** abarca el diario entero: arranca en la entrada más antigua, no en una fecha fija,
+  para que la línea de tiempo no tenga que recorrer años vacíos por delante.
 - La fecha personalizada se elige en un calendario:
   - Sin filtro personalizado activo se abre en **el mes actual**, con **hoy marcado** con un punto.
   - Con filtro activo se abre en el mes del día elegido, o en el del **final del rango**.
@@ -48,8 +50,8 @@ tiempo y a las páginas de grupo.
   - Un toque elige un día; el segundo cierra el rango. Si el segundo día es anterior al primero,
     pasa a ser el inicio.
   - No se aplica nada hasta pulsar **Aplicar**.
-- Volver a un preset (Hoy / 7 días / 30 días) **borra la fecha personalizada**: al reabrir el
-  calendario se vuelve a ver el mes actual con hoy marcado y sin selección.
+- Volver a un preset (Hoy / 7 días / 30 días / Siempre) **borra la fecha personalizada**: al
+  reabrir el calendario se vuelve a ver el mes actual con hoy marcado y sin selección.
 
 ## Filtros y orden (listado, línea de tiempo y páginas de grupo)
 

@@ -7,7 +7,7 @@
  * para que un registro de las 00:30 no se cuente en el día anterior.
  */
 
-export type DatePreset = "hoy" | "7d" | "30d";
+export type DatePreset = "hoy" | "7d" | "30d" | "siempre";
 
 export type DateFilter =
   | { kind: "preset"; preset: DatePreset }
@@ -20,6 +20,7 @@ export const PRESET_LABEL: Record<DatePreset, string> = {
   hoy: "Hoy",
   "7d": "7 días",
   "30d": "30 días",
+  siempre: "Siempre",
 };
 
 /* -------------------------------------------------------------------------- */
@@ -79,7 +80,13 @@ export interface DateRange {
   to: Date;
 }
 
-export function resolveRange(filter: DateFilter, now: Date = new Date()): DateRange {
+/**
+ * `earliest` es la fecha del registro más antiguo del diario. Solo lo usa el
+ * preset «Siempre», que arranca ahí en vez de en una fecha arbitraria: la
+ * línea de tiempo recorre el rango día a día, así que empezar en 1970 la
+ * dejaría recorriendo décadas vacías hasta chocar con su tope.
+ */
+export function resolveRange(filter: DateFilter, now: Date = new Date(), earliest: Date | null = null): DateRange {
   if (filter.kind === "custom") {
     return { from: startOfDay(parseDayKey(filter.from)), to: endOfDay(parseDayKey(filter.to)) };
   }
@@ -89,6 +96,8 @@ export function resolveRange(filter: DateFilter, now: Date = new Date()): DateRa
       return { from: startOfDay(now), to };
     case "7d":
       return { from: startOfDay(addDays(now, -6)), to };
+    case "siempre":
+      return { from: startOfDay(earliest ?? now), to };
     case "30d":
     default:
       return { from: startOfDay(addDays(now, -29)), to };
